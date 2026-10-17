@@ -413,12 +413,11 @@ textarea{resize:vertical;min-height:96px;line-height:1.4}
 <div class="ov" id="ovAj" role="dialog" aria-label="Personalizar inicio"><div class="sheet">
   <div class="shh"><h2>Personalizar inicio</h2><button class="x" data-close="ovAj" aria-label="Cerrar">✕</button></div>
   <label for="ajNom">Nombre</label><input type="text" id="ajNom" autocomplete="given-name" autocapitalize="words">
-  <label for="ajCod">Código de profesional</label><input type="text" id="ajCod" autocomplete="off" autocapitalize="characters">
+  <label for="ajCod">Tu nº de profesional (te identifica en los relevos)</label><input type="text" id="ajCod" inputmode="numeric" autocomplete="off">
   <label>Profesión</label><div class="seg" id="ajProf" role="group" aria-label="Profesión"><button data-pf="TES" aria-pressed="false">TES</button><button data-pf="DUE" aria-pressed="false">DUE</button><button data-pf="Médico" aria-pressed="false">Médico</button></div>
   <label>Base</label><div class="row" id="ajBase" role="group" aria-label="Base"></div>
   <label>Revisiones que quiero ver hoy</label><div id="ajAmb"></div>
   <label for="ajUni">Unidad (se muestra bajo tu nombre)</label><input type="text" id="ajUni" autocomplete="off">
-  <label for="ajClave">Clave del equipo (para el relevo)</label><input type="password" id="ajClave" autocomplete="off">
   <label>Fondo</label><div class="seg" id="ajSky" role="group" aria-label="Fondo"><button data-sk="auto" aria-pressed="true">Automático</button><button data-sk="tarde" aria-pressed="false">Día</button><button data-sk="noche" aria-pressed="false">Noche</button></div>
   <label class="chk"><input type="checkbox" id="ajVan"> Mostrar la UVI en el inicio</label>
   <button class="big-b sv" id="ajSave">Guardar</button>
@@ -427,7 +426,7 @@ textarea{resize:vertical;min-height:96px;line-height:1.4}
   <h2 style="margin:0 0 4px;font-size:1.3rem">¡Bienvenido a Asistencia TPC!</h2>
   <p class="lt" style="margin:0 0 6px">Cuéntanos quién eres y te enseñaremos lo que te toca cada día.</p>
   <label for="onbNom">¿Cómo te llamas?</label><input type="text" id="onbNom" autocomplete="given-name" autocapitalize="words" placeholder="Tu nombre">
-  <label for="onbCod">Tu código de profesional</label><input type="text" id="onbCod" autocomplete="off" autocapitalize="characters" placeholder="Para firmar tus relevos">
+  <label for="onbCod">Tu nº de profesional</label><input type="text" id="onbCod" inputmode="numeric" autocomplete="off" placeholder="Te identifica en los relevos">
   <label>Tu profesión</label><div class="seg" id="onbProf" role="group" aria-label="Profesión"><button data-pf="TES" aria-pressed="false">TES</button><button data-pf="DUE" aria-pressed="false">DUE</button><button data-pf="Médico" aria-pressed="false">Médico</button></div>
   <label>Tu base</label><div class="row" id="onbBase" role="group" aria-label="Base"></div>
   <button class="big-b sv" id="onbGo">Empezar</button>
@@ -912,7 +911,7 @@ const KP="tpc-perfil",KAC="tpc-accesos",KB="tpc-busq";
 const PROFMAP={TES:"TES",DUE:"Enfermería","Médico":"Médico"};
 const lj=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}};
 const sj=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){toast("No se pudo guardar en este móvil");return false}};
-let PF=Object.assign({nom:"",cod:"",clave:"",base:"",lab:"",prof:"",amb:[0],uni:"UVI-27",sky:"auto",van:true},lj(KP,{}));
+let PF=Object.assign({nom:"",cod:"",base:"",lab:"",prof:"",amb:[0],uni:"UVI-27",sky:"auto",van:true},lj(KP,{}));
 if(!Array.isArray(PF.amb)||!PF.amb.length)PF.amb=[0];
 const ICO={
   inicio:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10M10 20v-6h4v6"/>',
@@ -1014,7 +1013,8 @@ $("hoyBox").onclick=e=>{
 };
 /* ===================== RELEVO entre compañeros =====================
    Los mensajes viajan por un servicio propio (Google Apps Script + una hoja de cálculo). Ver README. */
-const RELEVO_URL="";   /* ← pega aquí la URL de la aplicación web de Apps Script (acaba en /exec) */
+const RELEVO_CLAVE="";   /* opcional: si la pones aquí y en el script (CLAVE), el servicio rechaza peticiones sin ella. Nadie la teclea. */
+const RELEVO_URL="https://script.google.com/macros/s/AKfycbyIqW5iAhsMHULsUsXOYCeX9PwAwnvXRXo1hS7xHucbqZNTCE1awcfhwnHaNypMeeeSIQ/exec";   /* ← pega aquí la URL de la aplicación web de Apps Script (acaba en /exec) */
 const KRL="tpc-relevo",KRLO="tpc-relevo-out";
 const RLP=[["General","Todos"],["Enfermería","Enfermería"],["TES","TES"],["Médico","Médicos"],["Persona","Un compañero"]];
 let RL=lj(KRL,{t:0,items:[]}),ROUT=lj(KRLO,[]),rlP="General",rlB="",rlEst="",rlBusy=false;
@@ -1045,15 +1045,15 @@ function rlAplica(op){
 }
 function rlOp(op){ROUT.push(op);rlAplica(op);rlGuarda();pHoy();rlSync()}
 async function rlSync(){
-  if(!RELEVO_URL||!PF.clave||rlBusy)return;
+  if(!RELEVO_URL||rlBusy)return;
   rlBusy=true;const antes=rlSig();
   try{
     while(ROUT.length){   /* primero lo que quedó por enviar sin conexión */
-      const r=await rlFetch(RELEVO_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(Object.assign({k:PF.clave},ROUT[0]))});
+      const r=await rlFetch(RELEVO_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(Object.assign({k:RELEVO_CLAVE},ROUT[0]))});
       if(r.err==="clave"){rlEst="clave";return}
       ROUT.shift();rlGuarda();   /* enviado, o rechazado por datos no válidos: no se reintenta */
     }
-    const j=await rlFetch(RELEVO_URL+"?k="+encodeURIComponent(PF.clave));
+    const j=await rlFetch(RELEVO_URL+"?k="+encodeURIComponent(RELEVO_CLAVE));
     if(j.err==="clave"){rlEst="clave";return}
     if(j.ok&&Array.isArray(j.items)){RL={t:Date.now(),items:j.items};ROUT.forEach(rlAplica);rlEst="ok"}else rlEst="error";
   }catch(e){rlEst="offline"}
@@ -1079,8 +1079,7 @@ function rlBlock(){
   const env=RL.items.filter(rlMio).sort((a,b)=>b.ts-a.ts).slice(0,20);
   h+=`<div class="sh"><h2>Relevo</h2>${pend.length?`<span class="cnt">${pend.length}</span>`:""}<button class="chip" data-rl="nuevo">+ Dejar relevo</button></div>`;
   if(!PF.base)return h+`<div class="note">Elige tu base para ver los relevos que te corresponden. <button class="chip loc" data-open="ovAj">Configurar</button></div></div>`;
-  if(!PF.clave)return h+`<div class="note">Introduce la clave del equipo para ver y dejar relevos. <button class="chip loc" data-open="ovAj">Configurar</button></div></div>`;
-  if(rlEst==="clave")return h+`<div class="note alert">La clave del equipo no es correcta. <button class="chip loc" data-open="ovAj">Cambiar</button></div></div>`;
+  if(rlEst==="clave")return h+`<div class="note alert">El servicio de relevo rechaza la conexión: la clave de la app y la del script no coinciden.</div></div>`;
   if(rlEst==="offline"||rlEst==="error"||ROUT.length)h+=`<p class="more">${rlEst==="ok"?"":"Sin conexión con el servicio"}${RL.t&&rlEst!=="ok"?" · datos de "+rlAgo(RL.t):""}${ROUT.length?" · "+ROUT.length+" por enviar":""}</p>`;
   h+=pend.length?pend.map(m=>rlCard(m,"pend")).join(""):`<p class="empty">${RL.t?"Sin relevos pendientes para ti.":"Cargando relevos…"}</p>`;
   const det=(t,l,modo)=>`<details class="med" style="margin-top:8px"><summary><span class="mn"><b>${t}</b><small>${l.length}</small></span></summary><div class="mb" style="padding-top:10px">${l.map(m=>rlCard(m,modo)).join("")}</div></details>`;
@@ -1096,7 +1095,7 @@ function rlUI(){
 }
 function rlAbrir(pre){
   if(!PF.nom||!PF.cod||!PF.base){toast("Antes pon tu nombre, tu código y tu base");openAj();return}
-  if(!RELEVO_URL||!PF.clave){toast(RELEVO_URL?"Falta la clave del equipo":"El relevo aún no está activado");if(RELEVO_URL)openAj();return}
+  if(!RELEVO_URL){toast("El relevo aún no está activado");return}
   rlP=(pre&&pre.para)||"General";
   rlB=(pre&&pre.base)||PF.base;$("rlTxt").value="";$("rlUrg").checked=false;$("rlPer").value=(pre&&pre.per)||"";
   rlUI();ovOn("ovRl");setTimeout(()=>$("rlTxt").focus(),150);
@@ -1132,7 +1131,7 @@ const BASES=["Málaga","Almería","Granada","Córdoba","Jaén"];
 const baseChips=(sel)=>BASES.map(b=>`<button class="chip" data-bs="${b}" aria-pressed="${b===sel}">${b}</button>`).join("");
 function segSet(id,attr,val){$(id).querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b.dataset[attr]===val))}
 function openAj(){
-  ajBs=PF.base||"";$("ajBase").innerHTML=baseChips(ajBs);$("ajNom").value=PF.nom;$("ajCod").value=PF.cod||"";$("ajClave").value=PF.clave||"";ajLab=PF.lab;ajSk=PF.sky||"auto";segSet("ajProf","pf",ajLab);segSet("ajSky","sk",ajSk);
+  ajBs=PF.base||"";$("ajBase").innerHTML=baseChips(ajBs);$("ajNom").value=PF.nom;$("ajCod").value=PF.cod||"";ajLab=PF.lab;ajSk=PF.sky||"auto";segSet("ajProf","pf",ajLab);segSet("ajSky","sk",ajSk);
   $("ajUni").value=PF.uni;$("ajVan").checked=!!PF.van;
   $("ajAmb").innerHTML=AMBITOS.map((a,i)=>`<label class="chk"><input type="checkbox" value="${i}"${PF.amb.includes(i)?" checked":""}> ${esc(a)}</label>`).join("");
   ovOn("ovAj");
@@ -1147,7 +1146,7 @@ $("ajSave").onclick=()=>{
   if(!ajLab){toast("Elige tu profesión");return}
   if(!ajBs){toast("Elige tu base");return}
   if(!amb.length){toast("Marca al menos un ámbito");return}
-  PF=Object.assign(PF,{nom:$("ajNom").value.trim(),cod:$("ajCod").value.trim().toUpperCase(),clave:$("ajClave").value.trim(),base:ajBs,lab:ajLab,prof:PROFMAP[ajLab],amb,uni:$("ajUni").value.trim(),sky:ajSk,van:$("ajVan").checked});
+  PF=Object.assign(PF,{nom:$("ajNom").value.trim(),cod:$("ajCod").value.trim().toUpperCase(),base:ajBs,lab:ajLab,prof:PROFMAP[ajLab],amb,uni:$("ajUni").value.trim(),sky:ajSk,van:$("ajVan").checked});
   if(sj(KP,PF)){ovOff("ovAj");pHero();pHoy();rlSync();toast("Inicio actualizado")}
 };
 let onbLab="";

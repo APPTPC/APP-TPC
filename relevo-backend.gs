@@ -1,9 +1,7 @@
-/**
- * Relevo · Asistencia TPC
- * Servicio de mensajes entre compañeros.
- * Se pega en "Extensiones → Apps Script" de una hoja de cálculo de Google (ver README).
- */
-const CLAVE = "CAMBIA-ESTA-CLAVE";   // la misma que escribirá cada compañero en la app (Personalizar → Clave del equipo)
+// Relevo - Asistencia TPC
+// Servicio de mensajes entre companeros.
+// Se pega en "Extensiones > Apps Script" de una hoja de calculo de Google (ver README).
+const CLAVE = "";   // OPCIONAL. Si la rellenas, pon la misma en RELEVO_CLAVE de index.html. Nadie la teclea: es solo un candado extra.
 const DIAS_VISIBLES = 15;            // los relevos más antiguos dejan de mostrarse en la app
 const HOJA = "relevo";
 const COLS = ["id","ts","de","cod","prof","uni","para","paraCod","base","urg","txt","hecho","hechoPor","hechoTs","borrado"];
@@ -26,7 +24,7 @@ const s_ = (v, n) => String(v == null ? "" : v).slice(0, n);
 
 function doGet(e) {
   const p = (e && e.parameter) || {};
-  if (p.k !== CLAVE) return out_({ ok: false, err: "clave" });
+  if (CLAVE && p.k !== CLAVE) return out_({ ok: false, err: "clave" });
   const h = hoja_(), n = h.getLastRow();
   if (n < 2) return out_({ ok: true, items: [] });
   const ini = Math.max(2, n - 399);                                  // últimas 400 filas
@@ -43,7 +41,7 @@ function doGet(e) {
 function doPost(e) {
   let b;
   try { b = JSON.parse(e.postData.contents); } catch (x) { return out_({ ok: false, err: "formato" }); }
-  if (b.k !== CLAVE) return out_({ ok: false, err: "clave" });
+  if (CLAVE && b.k !== CLAVE) return out_({ ok: false, err: "clave" });
   const lock = LockService.getScriptLock();
   lock.waitLock(15000);
   try {
@@ -92,7 +90,7 @@ function doPost(e) {
   }
 }
 
-/** Opcional: bórrala de la hoja los relevos de más de 60 días. Puedes programarla con un activador mensual. */
+// Opcional: borra de la hoja los relevos de mas de 60 dias. Se puede programar con un activador mensual.
 function limpiar() {
   const h = hoja_(), n = h.getLastRow();
   if (n < 2) return;

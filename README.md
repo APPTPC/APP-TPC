@@ -20,11 +20,11 @@ Mensajes dirigidos a **todos, Enfermería, TES, Médicos o un compañero concret
 
 ### Puesta en marcha (una sola vez, la hace una persona)
 1. En Google Drive crea una **hoja de cálculo nueva** (por ejemplo «Relevo TPC»).
-2. Menú **Extensiones → Apps Script**. Borra lo que haya, pega el contenido de `relevo-backend.gs` y cambia `CLAVE` por una clave de equipo que os acordéis.
+2. Menú **Extensiones → Apps Script**. Borra lo que haya, pega el contenido de `relevo-backend.gs` y deja `CLAVE` vacía (es opcional, ver «Protección de datos»).
 3. **Implementar → Nueva implementación → Aplicación web**. *Ejecutar como*: **Yo**. *Quién tiene acceso*: **Cualquier usuario**. Acepta los permisos y copia la **URL** (acaba en `/exec`).
 4. En `index.html` busca `const RELEVO_URL=""` y pega la URL entre las comillas.
 5. Sube `index.html` y `sw.js` a GitHub (`VERSION` ya está en `tpc-v9`).
-6. Cada compañero, en **Personalizar inicio**, rellena **Nombre**, **Código de profesional**, **Base**, **Unidad** y **Clave del equipo**.
+6. Cada compañero, en **Personalizar inicio**, rellena **Nombre**, **nº de profesional**, **Base** y **Unidad**. El nº de profesional es su identificador: con él firma los relevos y por él se le pueden dirigir mensajes personales.
 
 Si más adelante cambias el script, ve a *Implementar → Gestionar implementaciones → ✏️ → Versión nueva*: la URL no cambia.
 
@@ -35,4 +35,4 @@ Si más adelante cambias el script, ve a *Implementar → Gestionar implementaci
 - **Por base** (Málaga, Almería, Granada, Córdoba, Jaén): un relevo para Todos o para una profesión solo lo ve quien tenga esa base en su perfil, y además solo la profesión indicada (un relevo para TES no le sale a Enfermería). Al redactar, la base destino viene preseleccionada con la tuya. Los mensajes a un compañero concreto le llegan siempre, sea de la base que sea.
 
 ### Protección de datos
-No escribáis **nombres, DNI ni NUHSA de pacientes** en los relevos (la app lo recuerda al redactar): usad nº de aviso o iniciales. Los datos viven en vuestra hoja de Google, y la clave de equipo evita el acceso casual, pero no es un sistema de acceso individual. Si queréis usarlo de forma oficial, consultadlo antes con vuestro responsable de protección de datos.
+No escribáis **nombres, DNI ni NUHSA de pacientes** en los relevos (la app lo recuerda al redactar): usad nº de aviso o iniciales. Los datos viven en vuestra hoja de Google. La app no pide contraseña: el nº de profesional solo identifica y firma, no protege. Quien conozca la URL del servicio podría leer o escribir relevos. Si el repositorio es privado o la URL no se difunde, el riesgo es bajo; si queréis un candado extra, rellenad `CLAVE` en el script y la misma en `RELEVO_CLAVE` de `index.html` (nadie la teclea, pero en un repositorio público sería visible). Si queréis usarlo de forma oficial, consultadlo antes con vuestro responsable de protección de datos.

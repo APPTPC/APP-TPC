@@ -234,6 +234,19 @@ label.chk{display:flex;align-items:center;gap:10px;font-weight:500;margin:4px 0;
 .more{color:var(--mute);font-size:.85rem;margin:0 2px 8px}
 .bq input:focus-visible{outline:none}.bq input::-webkit-search-cancel-button{-webkit-appearance:none;display:none}
 .bpm{gap:6px;padding:8px}.bpm b{min-width:52px;text-align:center;line-height:1.2}.bpm input[type=range]{min-width:0}
+/* Relevo */
+textarea,input[type=password]{width:100%;max-width:100%;padding:12px 14px;font:inherit;border:1.5px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink)}
+textarea{resize:vertical;min-height:96px;line-height:1.4}
+.rlb{margin-bottom:22px}
+.card2{max-height:92dvh;overflow:auto}
+.rl{--c:var(--gen);background:var(--card);border-left:5px solid var(--c);border-radius:14px;padding:10px 12px;margin-bottom:8px;box-shadow:var(--sh)}
+.rl[data-para="Enfermería"]{--c:var(--enf)}.rl[data-para="TES"]{--c:var(--tes)}.rl[data-para="Médico"]{--c:var(--med)}.rl[data-para="Persona"]{--c:var(--brand)}
+.rl.urg{border-left-color:var(--red);box-shadow:0 0 0 2px rgba(220,38,38,.35),var(--sh)}
+.rl.ok{opacity:.65}
+.rlh{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.rlh .rlt{margin-left:auto;color:var(--mute);font-size:.78rem}
+.rlx{margin:6px 0 8px;white-space:pre-wrap;overflow-wrap:anywhere}
+.rlf{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.rlf small{flex:1;min-width:120px;color:var(--mute);line-height:1.3}
+.rlf .chip{min-height:36px;padding:4px 12px;font-size:.88rem}
 </style>
 </head>
 <body>
@@ -400,9 +413,12 @@ label.chk{display:flex;align-items:center;gap:10px;font-weight:500;margin:4px 0;
 <div class="ov" id="ovAj" role="dialog" aria-label="Personalizar inicio"><div class="sheet">
   <div class="shh"><h2>Personalizar inicio</h2><button class="x" data-close="ovAj" aria-label="Cerrar">✕</button></div>
   <label for="ajNom">Nombre</label><input type="text" id="ajNom" autocomplete="given-name" autocapitalize="words">
+  <label for="ajCod">Código de profesional</label><input type="text" id="ajCod" autocomplete="off" autocapitalize="characters">
   <label>Profesión</label><div class="seg" id="ajProf" role="group" aria-label="Profesión"><button data-pf="TES" aria-pressed="false">TES</button><button data-pf="DUE" aria-pressed="false">DUE</button><button data-pf="Médico" aria-pressed="false">Médico</button></div>
+  <label>Base</label><div class="row" id="ajBase" role="group" aria-label="Base"></div>
   <label>Revisiones que quiero ver hoy</label><div id="ajAmb"></div>
   <label for="ajUni">Unidad (se muestra bajo tu nombre)</label><input type="text" id="ajUni" autocomplete="off">
+  <label for="ajClave">Clave del equipo (para el relevo)</label><input type="password" id="ajClave" autocomplete="off">
   <label>Fondo</label><div class="seg" id="ajSky" role="group" aria-label="Fondo"><button data-sk="auto" aria-pressed="true">Automático</button><button data-sk="tarde" aria-pressed="false">Día</button><button data-sk="noche" aria-pressed="false">Noche</button></div>
   <label class="chk"><input type="checkbox" id="ajVan"> Mostrar la UVI en el inicio</label>
   <button class="big-b sv" id="ajSave">Guardar</button>
@@ -411,9 +427,23 @@ label.chk{display:flex;align-items:center;gap:10px;font-weight:500;margin:4px 0;
   <h2 style="margin:0 0 4px;font-size:1.3rem">¡Bienvenido a Asistencia TPC!</h2>
   <p class="lt" style="margin:0 0 6px">Cuéntanos quién eres y te enseñaremos lo que te toca cada día.</p>
   <label for="onbNom">¿Cómo te llamas?</label><input type="text" id="onbNom" autocomplete="given-name" autocapitalize="words" placeholder="Tu nombre">
+  <label for="onbCod">Tu código de profesional</label><input type="text" id="onbCod" autocomplete="off" autocapitalize="characters" placeholder="Para firmar tus relevos">
   <label>Tu profesión</label><div class="seg" id="onbProf" role="group" aria-label="Profesión"><button data-pf="TES" aria-pressed="false">TES</button><button data-pf="DUE" aria-pressed="false">DUE</button><button data-pf="Médico" aria-pressed="false">Médico</button></div>
+  <label>Tu base</label><div class="row" id="onbBase" role="group" aria-label="Base"></div>
   <button class="big-b sv" id="onbGo">Empezar</button>
   <p class="lt" style="margin:10px 0 0">Se guarda solo en este móvil. Podrás cambiarlo cuando quieras desde el inicio.</p>
+</div></div>
+<div class="ov" id="ovRl" role="dialog" aria-label="Dejar relevo"><div class="sheet">
+  <div class="shh"><h2>Dejar relevo</h2><button class="x" data-close="ovRl" aria-label="Cerrar">✕</button></div>
+  <div class="note alert"><b>Sin datos de pacientes.</b> No escribas nombre, DNI ni NUHSA. Usa el nº de aviso o las iniciales.</div>
+  <label>Para</label>
+  <div class="row" id="rlPara" role="group" aria-label="Destinatario"></div>
+  <div id="rlPerW" hidden><label for="rlPer">Código del compañero</label><input type="text" id="rlPer" autocomplete="off" autocapitalize="characters"></div>
+  <label for="rlTxt">Mensaje</label><textarea id="rlTxt" rows="4" maxlength="600" placeholder="Ej.: Falta reponer suero en la mochila de circulatorio"></textarea>
+  <label class="chk"><input type="checkbox" id="rlUrg"> Marcar como urgente</label>
+  <div id="rlBaseW"><label>Base destino</label><div class="row" id="rlBases" role="group" aria-label="Base destino"></div></div>
+  <p class="lt" id="rlFirma"></p>
+  <button class="big-b sv" id="rlEnv">Enviar relevo</button>
 </div></div>
 <div id="toast" role="status"></div>
 
@@ -882,7 +912,7 @@ const KP="tpc-perfil",KAC="tpc-accesos",KB="tpc-busq";
 const PROFMAP={TES:"TES",DUE:"Enfermería","Médico":"Médico"};
 const lj=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}};
 const sj=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){toast("No se pudo guardar en este móvil");return false}};
-let PF=Object.assign({nom:"",lab:"",prof:"",amb:[0],uni:"UVI-27",sky:"auto",van:true},lj(KP,{}));
+let PF=Object.assign({nom:"",cod:"",clave:"",base:"",lab:"",prof:"",amb:[0],uni:"UVI-27",sky:"auto",van:true},lj(KP,{}));
 if(!Array.isArray(PF.amb)||!PF.amb.length)PF.amb=[0];
 const ICO={
   inicio:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10M10 20v-6h4v6"/>',
@@ -976,36 +1006,156 @@ function pHoy(){
   else h+=`<p class="empty">Hoy no tienes revisiones programadas.</p>`;
   if(otras.length)h+=`<details class="med" style="margin-top:12px"><summary><span class="mn"><b>Otros formularios y registros</b><small>${otras.length} disponibles · cuando proceda</small></span></summary><div class="mb" style="padding-top:10px">${otras.map(x=>item(x,0)).join("")}</div></details>`;
   h+=`<button class="chip loc" data-go="revisiones" style="margin-top:12px">Ver todas las revisiones →</button>`;
-  el.innerHTML=h;
+  el.innerHTML=rlBlock()+h;
 }
 $("hoyBox").onclick=e=>{
   const tk=e.target.closest("[data-k]"),g=e.target.closest("[data-i]"),nv=e.target.closest("[data-go]");
   if(tk)marcar(+tk.dataset.k);else if(g)revGo(+g.dataset.i);else if(nv)go2(nv.dataset.go);
 };
+/* ===================== RELEVO entre compañeros =====================
+   Los mensajes viajan por un servicio propio (Google Apps Script + una hoja de cálculo). Ver README. */
+const RELEVO_URL="";   /* ← pega aquí la URL de la aplicación web de Apps Script (acaba en /exec) */
+const KRL="tpc-relevo",KRLO="tpc-relevo-out";
+const RLP=[["General","Todos"],["Enfermería","Enfermería"],["TES","TES"],["Médico","Médicos"],["Persona","Un compañero"]];
+let RL=lj(KRL,{t:0,items:[]}),ROUT=lj(KRLO,[]),rlP="General",rlB="",rlEst="",rlBusy=false;
+if(!RL||!Array.isArray(RL.items))RL={t:0,items:[]};if(!Array.isArray(ROUT))ROUT=[];
+ICO.relevo='<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/>';
+ACC["t:relevo"]={t:"Relevo",s:"Dejar un mensaje a los compañeros",ic:"relevo",c:COL.avisos,g:"Herramientas",k:"relevo pendientes mensaje companeros turno guardia recado nota",run:()=>rlAbrir()};
+const kn=s=>norm(s||"").replace(/[^a-z0-9]/g,"");
+const rlYo=()=>PF.nom+(PF.cod?" ("+PF.cod+")":"");
+const rlMio=m=>!!PF.cod&&kn(m.cod)===kn(PF.cod);
+const rlParaMi=m=>{
+  if(m.para==="Persona")return !!PF.cod&&kn(m.paraCod)===kn(PF.cod);
+  if(!PF.base||kn(m.base)!==kn(PF.base))return false;   /* un relevo de grupo solo lo ve su base */
+  return m.para==="General"||m.para===PF.prof;
+};
+const rlGuarda=()=>{sj(KRL,RL);sj(KRLO,ROUT)};
+const rlSig=()=>JSON.stringify([RL.items,rlEst,ROUT.length]);
+const rlAgo=ts=>{const m=Math.max(0,Math.round((Date.now()-ts)/60000));return m<1?"ahora":m<60?"hace "+m+" min":m<1440?"hace "+Math.round(m/60)+" h":"hace "+Math.round(m/1440)+" d"};
+async function rlFetch(url,opt){
+  const c=new AbortController(),t=setTimeout(()=>c.abort(),15000);
+  try{const r=await fetch(url,Object.assign({signal:c.signal,redirect:"follow"},opt||{}));return await r.json()}
+  finally{clearTimeout(t)}
+}
+function rlAplica(op){
+  const id=op.m?op.m.id:op.id,it=RL.items.find(x=>x.id===id);
+  if(op.op==="add"){if(!it)RL.items.push(Object.assign({hecho:false,hechoPor:"",hechoTs:0},op.m))}
+  else if(op.op==="done"&&it){it.hecho=!!op.hecho;it.hechoPor=op.hecho?op.por:"";it.hechoTs=op.hecho?Date.now():0}
+  else if(op.op==="del")RL.items=RL.items.filter(x=>x.id!==op.id);
+}
+function rlOp(op){ROUT.push(op);rlAplica(op);rlGuarda();pHoy();rlSync()}
+async function rlSync(){
+  if(!RELEVO_URL||!PF.clave||rlBusy)return;
+  rlBusy=true;const antes=rlSig();
+  try{
+    while(ROUT.length){   /* primero lo que quedó por enviar sin conexión */
+      const r=await rlFetch(RELEVO_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(Object.assign({k:PF.clave},ROUT[0]))});
+      if(r.err==="clave"){rlEst="clave";return}
+      ROUT.shift();rlGuarda();   /* enviado, o rechazado por datos no válidos: no se reintenta */
+    }
+    const j=await rlFetch(RELEVO_URL+"?k="+encodeURIComponent(PF.clave));
+    if(j.err==="clave"){rlEst="clave";return}
+    if(j.ok&&Array.isArray(j.items)){RL={t:Date.now(),items:j.items};ROUT.forEach(rlAplica);rlEst="ok"}else rlEst="error";
+  }catch(e){rlEst="offline"}
+  finally{rlBusy=false;rlGuarda();if(rlSig()!==antes)pHoy();if(ROUT.length&&rlEst==="ok")setTimeout(rlSync,400)}
+}
+function rlCard(m,modo){
+  const dest=m.para==="Persona"?"Para "+esc(m.paraCod):m.para==="General"?"Para todos":m.para==="Médico"?"Para médicos":"Para "+esc(m.para);
+  const id=esc(m.id),hecho=m.hecho?"✓ Hecho por "+esc(m.hechoPor||"un compañero"):"";
+  const porEnviar=ROUT.some(o=>o.op==="add"&&o.m.id===m.id);
+  const firma=esc(m.de)+(m.cod?" ("+esc(m.cod)+")":"")+(m.prof?" · "+esc(m.prof):"");
+  const pie=modo==="env"?(porEnviar?"⏳ Pendiente de enviar":hecho||"Enviado"):firma+(hecho?" · "+hecho:"");
+  const btn=modo==="pend"?`<button class="chip" data-rl="resp" data-id="${id}">↩ Responder</button><button class="chip" data-rl="ok" data-id="${id}">✓ Hecho</button>`
+    :modo==="hecho"?`<button class="chip" data-rl="reab" data-id="${id}">Reabrir</button>`
+    :`<button class="chip dng" data-rl="del" data-id="${id}">🗑 Eliminar</button>`;
+  return `<div class="rl${m.urg?" urg":""}${m.hecho?" ok":""}" data-para="${esc(m.para)}"><div class="rlh"><span class="tag c">${dest}</span>${m.urg?'<span class="tag hr">Urgente</span>':""}${m.para!=="Persona"&&m.base?`<span class="tag">${esc(m.base)}</span>`:""}${m.uni?`<span class="tag">${esc(m.uni)}</span>`:""}<span class="rlt">${dm(m.ts)} ${avHora(m.ts)} · ${rlAgo(m.ts)}</span></div><p class="rlx">${esc(m.txt)}</p><div class="rlf"><small>${pie}</small>${btn}</div></div>`;
+}
+function rlBlock(){
+  if(!RELEVO_URL)return `<div class="rlb"><div class="sh"><h2>Relevo</h2></div><div class="note">El relevo entre compañeros todavía no está activado en esta app (falta la dirección del servicio).</div></div>`;
+  let h=`<div class="rlb">`;
+  const now=Date.now(),todos=RL.items.filter(rlParaMi);
+  const pend=todos.filter(m=>!m.hecho&&!rlMio(m)).sort((a,b)=>(b.urg?1:0)-(a.urg?1:0)||b.ts-a.ts);
+  const hechos=todos.filter(m=>m.hecho&&now-(m.hechoTs||m.ts)<48*36e5).sort((a,b)=>(b.hechoTs||0)-(a.hechoTs||0));
+  const env=RL.items.filter(rlMio).sort((a,b)=>b.ts-a.ts).slice(0,20);
+  h+=`<div class="sh"><h2>Relevo</h2>${pend.length?`<span class="cnt">${pend.length}</span>`:""}<button class="chip" data-rl="nuevo">+ Dejar relevo</button></div>`;
+  if(!PF.base)return h+`<div class="note">Elige tu base para ver los relevos que te corresponden. <button class="chip loc" data-open="ovAj">Configurar</button></div></div>`;
+  if(!PF.clave)return h+`<div class="note">Introduce la clave del equipo para ver y dejar relevos. <button class="chip loc" data-open="ovAj">Configurar</button></div></div>`;
+  if(rlEst==="clave")return h+`<div class="note alert">La clave del equipo no es correcta. <button class="chip loc" data-open="ovAj">Cambiar</button></div></div>`;
+  if(rlEst==="offline"||rlEst==="error"||ROUT.length)h+=`<p class="more">${rlEst==="ok"?"":"Sin conexión con el servicio"}${RL.t&&rlEst!=="ok"?" · datos de "+rlAgo(RL.t):""}${ROUT.length?" · "+ROUT.length+" por enviar":""}</p>`;
+  h+=pend.length?pend.map(m=>rlCard(m,"pend")).join(""):`<p class="empty">${RL.t?"Sin relevos pendientes para ti.":"Cargando relevos…"}</p>`;
+  const det=(t,l,modo)=>`<details class="med" style="margin-top:8px"><summary><span class="mn"><b>${t}</b><small>${l.length}</small></span></summary><div class="mb" style="padding-top:10px">${l.map(m=>rlCard(m,modo)).join("")}</div></details>`;
+  if(hechos.length)h+=det("Hechos en las últimas 48 h",hechos,"hecho");
+  if(env.length)h+=det("Enviados por mí",env,"env");
+  return h+`</div>`;
+}
+function rlUI(){
+  $("rlPara").innerHTML=RLP.map(([k,t])=>`<button class="chip" data-rp="${k}" aria-pressed="${k===rlP}">${t}</button>`).join("");
+  $("rlPerW").hidden=rlP!=="Persona";$("rlBaseW").hidden=rlP==="Persona";
+  $("rlBases").innerHTML=baseChips(rlB);
+  $("rlFirma").textContent="Firmarás como "+rlYo()+(PF.uni?" · "+PF.uni:"");
+}
+function rlAbrir(pre){
+  if(!PF.nom||!PF.cod||!PF.base){toast("Antes pon tu nombre, tu código y tu base");openAj();return}
+  if(!RELEVO_URL||!PF.clave){toast(RELEVO_URL?"Falta la clave del equipo":"El relevo aún no está activado");if(RELEVO_URL)openAj();return}
+  rlP=(pre&&pre.para)||"General";
+  rlB=(pre&&pre.base)||PF.base;$("rlTxt").value="";$("rlUrg").checked=false;$("rlPer").value=(pre&&pre.per)||"";
+  rlUI();ovOn("ovRl");setTimeout(()=>$("rlTxt").focus(),150);
+}
+function rlEnviar(){
+  const txt=$("rlTxt").value.trim(),per=$("rlPer").value.trim();
+  if(!txt){toast("Escribe el mensaje");return}
+  if(rlP==="Persona"&&!kn(per)){toast("Indica el código del compañero");return}
+  const m={id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),ts:Date.now(),de:PF.nom,cod:PF.cod,prof:PF.prof,uni:PF.uni||"",
+    para:rlP,paraCod:rlP==="Persona"?per.toUpperCase():"",base:rlP==="Persona"?PF.base:rlB,urg:$("rlUrg").checked,txt:txt.slice(0,600)};
+  ovOff("ovRl");rlOp({op:"add",m});toast("Relevo guardado · se envía en cuanto haya conexión");
+}
+$("rlBases").onclick=e=>{const b=e.target.closest("[data-bs]");if(b){rlB=b.dataset.bs;rlUI()}};
+$("rlPara").onclick=e=>{const b=e.target.closest("[data-rp]");if(b){rlP=b.dataset.rp;rlUI()}};
+$("rlEnv").onclick=rlEnviar;
+$("hoyBox").addEventListener("click",e=>{
+  const b=e.target.closest("[data-rl]");if(!b)return;
+  const a=b.dataset.rl,id=b.dataset.id,m=RL.items.find(x=>x.id===id);
+  if(a==="nuevo")rlAbrir();
+  else if(a==="resp"&&m)rlAbrir({para:"Persona",per:m.cod});
+  else if(a==="ok")rlOp({op:"done",id,hecho:true,por:rlYo()});
+  else if(a==="reab")rlOp({op:"done",id,hecho:false});
+  else if(a==="del"&&confirm("¿Eliminar este relevo para todos?"))rlOp({op:"del",id,cod:PF.cod});
+});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)rlSync()});
+addEventListener("online",rlSync);
+setInterval(()=>{if(!document.hidden)rlSync()},60000);
+setTimeout(rlSync,300);
 /* --- ventanas: personalizar, bienvenida --- */
 const ovOn=id=>$(id).classList.add("on"),ovOff=id=>$(id).classList.remove("on");
-let ajLab="",ajSk="auto";
+let ajLab="",ajSk="auto",ajBs="",onbBs="";
+const BASES=["Málaga","Almería","Granada","Córdoba","Jaén"];
+const baseChips=(sel)=>BASES.map(b=>`<button class="chip" data-bs="${b}" aria-pressed="${b===sel}">${b}</button>`).join("");
 function segSet(id,attr,val){$(id).querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b.dataset[attr]===val))}
 function openAj(){
-  $("ajNom").value=PF.nom;ajLab=PF.lab;ajSk=PF.sky||"auto";segSet("ajProf","pf",ajLab);segSet("ajSky","sk",ajSk);
+  ajBs=PF.base||"";$("ajBase").innerHTML=baseChips(ajBs);$("ajNom").value=PF.nom;$("ajCod").value=PF.cod||"";$("ajClave").value=PF.clave||"";ajLab=PF.lab;ajSk=PF.sky||"auto";segSet("ajProf","pf",ajLab);segSet("ajSky","sk",ajSk);
   $("ajUni").value=PF.uni;$("ajVan").checked=!!PF.van;
   $("ajAmb").innerHTML=AMBITOS.map((a,i)=>`<label class="chk"><input type="checkbox" value="${i}"${PF.amb.includes(i)?" checked":""}> ${esc(a)}</label>`).join("");
   ovOn("ovAj");
 }
+$("ajBase").onclick=e=>{const b=e.target.closest("[data-bs]");if(b){ajBs=b.dataset.bs;$("ajBase").innerHTML=baseChips(ajBs)}};
+$("onbBase").innerHTML=baseChips("");
+$("onbBase").onclick=e=>{const b=e.target.closest("[data-bs]");if(b){onbBs=b.dataset.bs;$("onbBase").innerHTML=baseChips(onbBs)}};
 $("ajProf").onclick=e=>{const b=e.target.closest("[data-pf]");if(b){ajLab=b.dataset.pf;segSet("ajProf","pf",ajLab)}};
 $("ajSky").onclick=e=>{const b=e.target.closest("[data-sk]");if(b){ajSk=b.dataset.sk;segSet("ajSky","sk",ajSk)}};
 $("ajSave").onclick=()=>{
   const amb=[...$("ajAmb").querySelectorAll("input:checked")].map(x=>+x.value);
   if(!ajLab){toast("Elige tu profesión");return}
+  if(!ajBs){toast("Elige tu base");return}
   if(!amb.length){toast("Marca al menos un ámbito");return}
-  PF=Object.assign(PF,{nom:$("ajNom").value.trim(),lab:ajLab,prof:PROFMAP[ajLab],amb,uni:$("ajUni").value.trim(),sky:ajSk,van:$("ajVan").checked});
-  if(sj(KP,PF)){ovOff("ovAj");pHero();pHoy();toast("Inicio actualizado")}
+  PF=Object.assign(PF,{nom:$("ajNom").value.trim(),cod:$("ajCod").value.trim().toUpperCase(),clave:$("ajClave").value.trim(),base:ajBs,lab:ajLab,prof:PROFMAP[ajLab],amb,uni:$("ajUni").value.trim(),sky:ajSk,van:$("ajVan").checked});
+  if(sj(KP,PF)){ovOff("ovAj");pHero();pHoy();rlSync();toast("Inicio actualizado")}
 };
 let onbLab="";
 $("onbProf").onclick=e=>{const b=e.target.closest("[data-pf]");if(b){onbLab=b.dataset.pf;segSet("onbProf","pf",onbLab)}};
 $("onbGo").onclick=()=>{
   if(!onbLab){toast("Elige tu profesión para continuar");return}
-  PF=Object.assign(PF,{nom:$("onbNom").value.trim(),lab:onbLab,prof:PROFMAP[onbLab]});
+  if(!onbBs){toast("Elige tu base para continuar");return}
+  PF=Object.assign(PF,{nom:$("onbNom").value.trim(),cod:$("onbCod").value.trim().toUpperCase(),base:onbBs,lab:onbLab,prof:PROFMAP[onbLab]});
   if(sj(KP,PF)){ovOff("onb");pHero();pHoy()}
 };
 document.addEventListener("click",e=>{

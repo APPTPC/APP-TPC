@@ -8,7 +8,7 @@ App web instalable (PWA) para traslado de pacientes críticos: revisiones por d�
 3. Abre `https://TU-USUARIO.github.io/NOMBRE-REPO/` desde el móvil y elige «Añadir a pantalla de inicio».
 
 ## Actualizar
-Tras cualquier cambio en `index.html`, guías o iconos, sube el número de `VERSION` en `sw.js` (`tpc-v9` → `tpc-v10`) para que los móviles descarguen la versión nueva.
+Tras cualquier cambio en `index.html`, guías o iconos, sube el número de `VERSION` en `sw.js` (`tpc-v10` → `tpc-v11`) para que los móviles descarguen la versión nueva.
 
 ## Pantalla de inicio
 - Saludo según la hora, fondo que cambia (mañana, tarde, atardecer, noche) y la UVI integrada en la escena.
@@ -36,3 +36,18 @@ Si más adelante cambias el script, ve a *Implementar → Gestionar implementaci
 
 ### Protección de datos
 No escribáis **nombres, DNI ni NUHSA de pacientes** en los relevos (la app lo recuerda al redactar): usad nº de aviso o iniciales. Los datos viven en vuestra hoja de Google. La app no pide contraseña: el nº de profesional solo identifica y firma, no protege. Quien conozca la URL del servicio podría leer o escribir relevos. Si el repositorio es privado o la URL no se difunde, el riesgo es bajo; si queréis un candado extra, rellenad `CLAVE` en el script y la misma en `RELEVO_CLAVE` de `index.html` (nadie la teclea, pero en un repositorio público sería visible). Si queréis usarlo de forma oficial, consultadlo antes con vuestro responsable de protección de datos.
+
+## Herramientas (menú) y calculadoras
+- **Herramientas** es ahora un menú de botones: Dosis, Perfusiones, Ventilación, Intubación, Escalas, Oxígeno, Parada y Avisos. Dentro de cada una, el botón «← Herramientas» vuelve al menú.
+- **Perfusiones:** dosis ↔ ml/h según cantidad, volumen final y peso (mcg/kg/min, mg/kg/h, mcg/min, mg/h, UI/h…). Rechaza combinaciones de unidades incompatibles.
+- **Ventilación:** peso ideal por altura y sexo, volumen corriente (6–8 ml/kg), volumen minuto, tiempos inspiración/espiración y PaO₂/FiO₂.
+- **Intubación (secuencia rápida):** dosis por peso, tubo orientativo y plan de vía aérea. Los rangos de dosis están en la lista `IOTD` de `index.html`: **que los revise vuestro responsable clínico** y se ajustan allí si el protocolo difiere.
+- **Escalas:** Glasgow, NEWS2, qSOFA e índice de shock.
+- **C.O.C. Córdoba (957 25 24 50):** acceso rápido de llamada. Se añade en Inicio → Accesos rápidos → Añadir → *Llamar*.
+
+## Avisos: ruta y tiempo
+- En cada aviso, el botón **🧭 Ruta y tiempo** calcula el tiempo desde tu ubicación (o desde el punto que escribas) hasta el origen y del origen al destino (traslados), o hasta la dirección (primarios), con hora estimada de llegada. Abre la navegación en Google Maps, Waze o Apple Maps.
+- El cálculo usa servicios públicos y gratuitos: **OpenStreetMap (Nominatim)** para localizar los lugares y **OSRM** para la ruta. Solo se envían los lugares escritos y tu ubicación, y solo al pulsar «Calcular tiempo». Nunca el nombre ni el diagnóstico. Son servicios con uso limitado; si fallan, los botones de navegación siguen funcionando.
+- Es una estimación por carretera con tráfico normal, sin tráfico en tiempo real ni prioridad del vehículo.
+- En los **primarios** ya no hay hospital ni médico de destino.
+- **Soporte** se elige con botones (Monitor, Vía, Oxígeno, Ventilación mecánica, Perfusiones, Marcapasos, Drenajes, Inmovilización) y admite texto libre.

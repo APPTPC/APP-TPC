@@ -247,6 +247,21 @@ textarea{resize:vertical;min-height:96px;line-height:1.4}
 .rlx{margin:6px 0 8px;white-space:pre-wrap;overflow-wrap:anywhere}
 .rlf{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.rlf small{flex:1;min-width:120px;color:var(--mute);line-height:1.3}
 .rlf .chip{min-height:36px;padding:4px 12px;font-size:.88rem}
+/* Herramientas · menú, calculadoras, ruta */
+.hub{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media(min-width:560px){.hub{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.hb{--c:var(--brand);border:0;background:var(--card);color:var(--ink);border-radius:18px;padding:16px 10px 14px;font:inherit;font-weight:800;display:grid;justify-items:center;align-content:start;gap:8px;box-shadow:var(--sh);cursor:pointer;min-height:122px;text-align:center;line-height:1.15}
+.hb:active{transform:scale(.97)}.hb small{font-weight:500;color:var(--mute);font-size:.76rem;line-height:1.25}
+.hb .ai{width:48px;height:48px;border-radius:15px}
+.hbar{display:flex;align-items:center;gap:10px;margin-bottom:12px}.hbar b{font-size:1.06rem}
+.res.am{background:linear-gradient(135deg,#9a3412,#ea580c)}.res.rd{background:linear-gradient(135deg,#991b1b,#dc2626)}
+.iot{background:var(--card);border-radius:14px;padding:10px 12px;margin-bottom:8px;box-shadow:var(--sh)}
+.iot .it{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.iot .idz{font-weight:800;color:var(--brand);text-align:right}
+.iot small{color:var(--mute);display:block;line-height:1.3;margin-top:2px}
+.iot .iq{display:flex;gap:10px;align-items:center;margin-top:8px}.iot .iq input{max-width:130px;padding:8px 10px}.iot .iq span{font-weight:700}
+a.big-b.nv{display:flex;align-items:center;justify-content:center;min-height:50px;margin-top:8px;background:var(--brand);color:#fff;text-decoration:none;border-radius:12px;font-weight:800}
+.rtl{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}.rtl .chip{margin-bottom:0;min-height:46px}
 </style>
 </head>
 <body>
@@ -297,11 +312,10 @@ textarea{resize:vertical;min-height:96px;line-height:1.4}
 </section>
 
 <section id="herr">
-  <div class="seg" id="hTabs" role="group" aria-label="Herramienta">
-    <button data-h="dosis" aria-pressed="true">💉 Dosis</button><button data-h="o2" aria-pressed="false">🫁 Oxígeno</button><button data-h="cpr" aria-pressed="false">⏱ Parada</button><button data-h="avisos" aria-pressed="false">📋 Avisos</button>
-  </div>
+  <div id="hHub"><div class="note">Elige una herramienta. Dentro de cada una tienes el botón «← Herramientas» para volver.</div><div class="hub" id="hHubG"></div></div>
+  <div class="hbar" id="hBar" hidden><button class="chip" id="hBack" aria-label="Volver a Herramientas">← Herramientas</button><b id="hTit"></b></div>
 
-  <div id="h-dosis">
+  <div id="h-dosis" hidden>
     <div class="note alert">Herramienta de cálculo. Comprueba siempre dosis y dilución con tu protocolo antes de administrar.</div>
     <label for="cFarm">Fármaco (ampulario inyectable)</label><select id="cFarm"></select>
     <label for="cModo">Tipo de dosis</label>
@@ -333,6 +347,95 @@ textarea{resize:vertical;min-height:96px;line-height:1.4}
     <div id="oRes"></div>
   </div>
 
+  <div id="h-perf" hidden>
+    <div class="note alert">Ayuda de cálculo. Comprueba siempre fármaco, dilución, dosis y velocidad con tu protocolo y en la bomba antes de iniciar.</div>
+    <div class="seg" id="pfModo" role="group" aria-label="Modo"><button data-v="d2v" aria-pressed="true">Dosis → ml/h</button><button data-v="v2d" aria-pressed="false">ml/h → dosis</button></div>
+    <div class="two">
+      <div><label for="pfCant">Fármaco en la mezcla</label><input type="number" id="pfCant" step="any" min="0" inputmode="decimal"></div>
+      <div><label for="pfCU">Unidad</label><select id="pfCU"><option value="mg">mg</option><option value="mcg">mcg</option><option value="UI">UI</option></select></div>
+    </div>
+    <label for="pfVol">Volumen final de la mezcla (ml)</label><input type="number" id="pfVol" step="any" min="0" inputmode="decimal">
+    <div id="pfPesoW"><label for="pfPeso">Peso del paciente (kg)</label><input type="number" id="pfPeso" step="any" min="0" inputmode="decimal"></div>
+    <label for="pfDU">Unidad de dosis</label><select id="pfDU"></select>
+    <div id="pfDoseW"><label for="pfDose">Dosis deseada</label><input type="number" id="pfDose" step="any" min="0" inputmode="decimal"></div>
+    <div id="pfRateW" hidden><label for="pfRate">Velocidad de la bomba (ml/h)</label><input type="number" id="pfRate" step="any" min="0" inputmode="decimal"></div>
+    <div id="pfRes"></div>
+  </div>
+
+  <div id="h-vent" hidden>
+    <div class="note alert">Valores de partida orientativos. Ajusta siempre a la clínica, a la gasometría y a tu protocolo.</div>
+    <div class="seg" id="vtModo" role="group" aria-label="Paciente"><button data-v="ad" aria-pressed="true">Adulto</button><button data-v="ni" aria-pressed="false">Niño</button></div>
+    <div id="vtAd">
+      <div class="seg" id="vtSex" role="group" aria-label="Sexo"><button data-v="H" aria-pressed="true">Hombre</button><button data-v="M" aria-pressed="false">Mujer</button></div>
+      <label for="vtH">Altura (cm)</label><input type="number" id="vtH" step="1" min="0" inputmode="numeric">
+    </div>
+    <div id="vtNi" hidden><label for="vtW">Peso (kg)</label><input type="number" id="vtW" step="any" min="0" inputmode="decimal"></div>
+    <div class="two">
+      <div><label for="vtK">Vt (ml/kg)</label><input type="number" id="vtK" value="6" step="any" min="1" inputmode="decimal"></div>
+      <div><label for="vtF">Frecuencia (rpm)</label><input type="number" id="vtF" value="14" step="1" min="1" inputmode="numeric"></div>
+    </div>
+    <label for="vtIE">Relación I:E</label><select id="vtIE"><option value="1">1:1</option><option value="2" selected>1:2</option><option value="3">1:3</option><option value="4">1:4</option></select>
+    <div id="vtRes"></div>
+    <h3 class="amb">PaO₂ / FiO₂</h3>
+    <div class="two">
+      <div><label for="vtPa">PaO₂ (mmHg)</label><input type="number" id="vtPa" step="any" min="0" inputmode="decimal"></div>
+      <div><label for="vtFi">FiO₂ (%)</label><input type="number" id="vtFi" step="any" min="21" max="100" inputmode="decimal"></div>
+    </div>
+    <div id="vtPf"></div>
+    <details class="med" style="margin-top:12px"><summary><span class="mn"><b>Objetivos habituales</b><small>PEEP, FiO₂, presiones, CO₂</small></span></summary><div class="mb" style="padding:10px 12px"><ul style="margin:0;padding-left:18px"><li>Volumen corriente protector: 6–8 ml/kg de peso ideal (6 ml/kg en SDRA).</li><li>PEEP inicial ≈ 5 cmH₂O; ajustar según oxigenación y hemodinámica.</li><li>FiO₂: partir alta y bajar hasta SpO₂ 92–96 % (88–92 % si EPOC o riesgo de hipercapnia).</li><li>Presión meseta ≤ 30 cmH₂O.</li><li>CO₂ espirado: individualizar (normocapnia salvo indicación concreta).</li><li>En niños, la frecuencia depende de la edad: ajústala con capnografía.</li></ul></div></details>
+  </div>
+
+  <div id="h-iot" hidden>
+    <div class="note alert">Dosis orientativas por peso. Las dosis finales dependen de la situación hemodinámica y de tu protocolo: contrástalas antes de administrar.</div>
+    <div class="seg" id="iotModo" role="group" aria-label="Paciente"><button data-v="ad" aria-pressed="true">Adulto</button><button data-v="pe" aria-pressed="false">Pediátrico</button></div>
+    <label for="iotW">Peso (kg)</label><input type="number" id="iotW" step="any" min="0" inputmode="decimal">
+    <div id="iotAdW"><div class="seg" id="iotSex" role="group" aria-label="Sexo" style="margin-top:12px"><button data-v="H" aria-pressed="true">Hombre</button><button data-v="M" aria-pressed="false">Mujer</button></div></div>
+    <div id="iotPeW" hidden><label for="iotA">Edad (años)</label><input type="number" id="iotA" step="any" min="0" inputmode="decimal"></div>
+    <div id="iotTube" style="margin-top:12px"></div>
+    <h3 class="amb">Fármacos</h3>
+    <p class="note">Opcional: escribe la concentración de tu ampolla o jeringa (mg/ml o mcg/ml) y verás los ml.</p>
+    <div id="iotRows"></div>
+    <details class="med" style="margin-top:12px"><summary><span class="mn"><b>Plan de vía aérea y comprobación</b><small>Preparación, planes A–D, confirmación</small></span></summary><div class="mb" style="padding:10px 12px"><ul style="margin:0;padding-left:18px"><li>Preparar: monitor con capnografía, 2 accesos, aspiración, material de rescate, fármacos de reanimación.</li><li>Preoxigenar (mascarilla con reservorio ± cánulas nasales) y optimizar la hemodinámica antes de inducir.</li><li>Plan A: laringoscopia (mejor videolaringoscopio) con secuencia rápida.</li><li>Plan B: dispositivo supraglótico. Plan C: ventilar con mascarilla y cánula orofaríngea. Plan D: acceso cervical anterior (cricotiroidotomía).</li><li>Confirmar: capnografía con onda continua, elevación torácica bilateral, auscultación y SpO₂.</li><li>Fijar el tubo, anotar la profundidad y comprobar la presión del balón (20–30 cmH₂O).</li></ul></div></details>
+  </div>
+
+  <div id="h-esc" hidden>
+    <div class="row scroll" id="escSel" role="group" aria-label="Escala"><button class="chip" data-v="gcs" aria-pressed="true">Glasgow</button><button class="chip" data-v="news" aria-pressed="false">NEWS2</button><button class="chip" data-v="qsofa" aria-pressed="false">qSOFA</button><button class="chip" data-v="shock" aria-pressed="false">Índice de shock</button></div>
+    <div id="es-gcs">
+      <label for="gcE">Apertura ocular</label><select id="gcE"><option value="4">4 · Espontánea</option><option value="3">3 · Al estímulo verbal</option><option value="2">2 · Al dolor</option><option value="1">1 · Ninguna</option></select>
+      <label for="gcV">Respuesta verbal</label><select id="gcV"><option value="5">5 · Orientado</option><option value="4">4 · Confuso</option><option value="3">3 · Palabras inapropiadas</option><option value="2">2 · Sonidos incomprensibles</option><option value="1">1 · Ninguna (intubado: T)</option></select>
+      <label for="gcM">Respuesta motora</label><select id="gcM"><option value="6">6 · Obedece órdenes</option><option value="5">5 · Localiza el dolor</option><option value="4">4 · Retira al dolor</option><option value="3">3 · Flexión anormal (decorticación)</option><option value="2">2 · Extensión (descerebración)</option><option value="1">1 · Ninguna</option></select>
+      <div id="gcRes"></div>
+    </div>
+    <div id="es-news" hidden>
+      <div class="two">
+        <div><label for="nwR">Resp. (rpm)</label><input type="number" id="nwR" step="1" min="0" inputmode="numeric"></div>
+        <div><label for="nwS">SpO₂ (%)</label><input type="number" id="nwS" step="1" min="0" max="100" inputmode="numeric"></div>
+      </div>
+      <div class="seg" id="nwE" role="group" aria-label="Escala de SpO2" style="margin-top:10px"><button data-v="1" aria-pressed="true">SpO₂ escala 1</button><button data-v="2" aria-pressed="false">Escala 2 (88–92 %)</button></div>
+      <label class="chk"><input type="checkbox" id="nwO"> Con oxígeno suplementario</label>
+      <div class="two">
+        <div><label for="nwP">TAS (mmHg)</label><input type="number" id="nwP" step="1" min="0" inputmode="numeric"></div>
+        <div><label for="nwF">FC (lpm)</label><input type="number" id="nwF" step="1" min="0" inputmode="numeric"></div>
+      </div>
+      <label for="nwC">Nivel de conciencia</label><select id="nwC"><option value="0">Alerta</option><option value="1">Confusión nueva, voz, dolor o no responde</option></select>
+      <label for="nwT">Temperatura (°C)</label><input type="number" id="nwT" step="0.1" min="25" inputmode="decimal">
+      <div id="nwRes"></div>
+    </div>
+    <div id="es-qsofa" hidden>
+      <label class="chk"><input type="checkbox" id="qs1"> Frecuencia respiratoria ≥ 22 rpm</label>
+      <label class="chk"><input type="checkbox" id="qs2"> Tensión sistólica ≤ 100 mmHg</label>
+      <label class="chk"><input type="checkbox" id="qs3"> Alteración del nivel de conciencia (Glasgow &lt; 15)</label>
+      <div id="qsRes"></div>
+    </div>
+    <div id="es-shock" hidden>
+      <div class="two">
+        <div><label for="shF">FC (lpm)</label><input type="number" id="shF" step="1" min="0" inputmode="numeric"></div>
+        <div><label for="shP">TAS (mmHg)</label><input type="number" id="shP" step="1" min="0" inputmode="numeric"></div>
+      </div>
+      <div id="shRes"></div>
+    </div>
+  </div>
+
   <div id="h-cpr" class="cpr" hidden>
     <div id="cprMain">
       <div class="ring"><svg viewBox="0 0 120 120"><circle class="bg" cx="60" cy="60" r="54"/><circle class="fg" id="rg" cx="60" cy="60" r="54" stroke-dasharray="339.292" stroke-dashoffset="339.292"/></svg>
@@ -359,15 +462,19 @@ textarea{resize:vertical;min-height:96px;line-height:1.4}
     <label for="av_dx">Diagnóstico</label><input type="text" id="av_dx" autocomplete="off">
     <div id="aTr">
       <label for="av_ori">Hospital de origen</label><input type="text" id="av_ori" autocomplete="off">
-      <label for="av_mo">Médico que recibe (origen)</label><input type="text" id="av_mo" autocomplete="off">
+      <label for="av_mo">Médico de origen</label><input type="text" id="av_mo" autocomplete="off">
     </div>
     <div id="aPr" hidden>
       <label for="av_dir">Dirección</label><input type="text" id="av_dir" autocomplete="off">
     </div>
-    <label for="av_des">Hospital de destino</label><input type="text" id="av_des" autocomplete="off">
-    <label for="av_md">Médico que recepciona al paciente (destino)</label><input type="text" id="av_md" autocomplete="off">
-    <label for="av_sop">Soporte</label><input type="text" id="av_sop" list="sopL" autocomplete="off" placeholder="ej. UVI móvil, SVA, helicóptero…">
-    <datalist id="sopL"><option value="UVI móvil"><option value="SVA"><option value="SVB"><option value="Helicóptero"><option value="Avión"></datalist>
+    <div id="aDes">
+      <label for="av_des">Hospital de destino</label><input type="text" id="av_des" autocomplete="off">
+      <label for="av_md">Médico de destino</label><input type="text" id="av_md" autocomplete="off">
+    </div>
+    <button class="big-b cn" id="aRuta" type="button">🧭 Ruta y tiempo</button>
+    <label for="av_sop">Soporte</label>
+    <div class="row" id="sopCh" role="group" aria-label="Soporte"></div>
+    <input type="text" id="av_sop" autocomplete="off" placeholder="Otro soporte (separa con comas)">
     <button class="big-b sv" id="aGuardar">Guardar aviso</button>
     <button class="big-b cn" id="aCancel" hidden>Cancelar edición</button>
     <div id="aLista" style="margin-top:6px"></div>
@@ -443,6 +550,22 @@ textarea{resize:vertical;min-height:96px;line-height:1.4}
   <div id="rlBaseW"><label>Base destino</label><div class="row" id="rlBases" role="group" aria-label="Base destino"></div></div>
   <p class="lt" id="rlFirma"></p>
   <button class="big-b sv" id="rlEnv">Enviar relevo</button>
+</div></div>
+<div class="ov" id="ovRuta" role="dialog" aria-label="Ruta y tiempo"><div class="sheet">
+  <div class="shh"><h2>Ruta y tiempo</h2><button class="x" data-close="ovRuta" aria-label="Cerrar">✕</button></div>
+  <label>Navegar con</label><div class="row" id="rtApp" role="group" aria-label="Aplicación de navegación"></div>
+  <label for="rtSal">Salgo desde</label>
+  <div class="rtl"><input type="text" id="rtSal" autocomplete="off" placeholder="Mi ubicación actual (GPS)"><button class="chip" id="rtGps" type="button">📍 GPS</button></div>
+  <div id="rtTr">
+    <label for="rtOri">Origen (hospital o dirección)</label><input type="text" id="rtOri" autocomplete="off">
+    <label for="rtDes">Destino (hospital o dirección)</label><input type="text" id="rtDes" autocomplete="off">
+    <label for="rtEst">Tiempo previsto en origen (min, opcional)</label><input type="number" id="rtEst" step="1" min="0" inputmode="numeric">
+  </div>
+  <div id="rtPr" hidden><label for="rtDir">Dirección</label><input type="text" id="rtDir" autocomplete="off"></div>
+  <div class="note" style="margin-top:12px"><b>Privacidad:</b> al pulsar «Calcular tiempo», los lugares escritos y tu ubicación se envían a servicios públicos de mapas (OpenStreetMap y OSRM). Nunca se envía el nombre ni el diagnóstico del paciente. Los botones de navegación comparten el destino con la app que elijas.</div>
+  <button class="big-b sv" id="rtCalc" type="button">Calcular tiempo</button>
+  <div id="rtRes"></div>
+  <div id="rtGo"></div>
 </div></div>
 <div id="toast" role="status"></div>
 
@@ -867,14 +990,14 @@ const gIni=ts=>{const d=new Date(ts);if(d.getHours()<10)d.setDate(d.getDate()-1)
 const dm=ts=>{const d=new Date(ts);return p2(d.getDate())+"/"+p2(d.getMonth()+1)};
 const avHora=ts=>{const d=new Date(ts);return p2(d.getHours())+":"+p2(d.getMinutes())};
 const gTit=g=>{const f=new Date(g);f.setDate(f.getDate()+1);return "Guardia "+dm(g)+" 10:00 → "+dm(f.getTime())+" 10:00"};
-function aTipoUI(){$("aTipo").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.at===aT));$("aTr").hidden=aT==="Primario";$("aPr").hidden=aT!=="Primario"}
+function aTipoUI(){$("aTipo").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.at===aT));$("aTr").hidden=aT==="Primario";$("aPr").hidden=aT!=="Primario";$("aDes").hidden=aT==="Primario"}
 function aForm(r){aEd=r?r.id:null;aT=r?r.tipo:"Traslado";AF.forEach(k=>$("av_"+k).value=r&&r[k]?r[k]:"");$("av_fh").value=aInp(r?r.ts:Date.now());
-  $("avFt").textContent=r?"Editando aviso":"Nuevo aviso";$("aGuardar").textContent=r?"Guardar cambios":"Guardar aviso";$("aCancel").hidden=!r;aTipoUI()}
+  $("avFt").textContent=r?"Editando aviso":"Nuevo aviso";$("aGuardar").textContent=r?"Guardar cambios":"Guardar aviso";$("aCancel").hidden=!r;aTipoUI();sopUI()}
 function aGuardar(){
   const v={};AF.forEach(k=>v[k]=$("av_"+k).value.trim());
   if(!v.num&&!v.nom){toast("Indica al menos el nº de aviso o el nombre");return}
   let ts=new Date($("av_fh").value).getTime();if(!ts)ts=Date.now();
-  if(aT==="Primario"){v.ori="";v.mo=""}else v.dir="";
+  if(aT==="Primario"){v.ori="";v.mo="";v.des="";v.md=""}else v.dir="";
   const r=Object.assign({id:aEd||Date.now().toString(36)+Math.random().toString(36).slice(2,6),ts,tipo:aT},v);
   const l=aLoad(),i=l.findIndex(x=>x.id===r.id);if(i>=0)l[i]=r;else l.push(r);
   if(!aSave(l))return;
@@ -884,8 +1007,8 @@ const aLi=(k,v)=>v?`<dt>${k}</dt><dd>${esc(v)}</dd>`:"";
 const aCard=r=>`<div class="av${r.tipo==="Primario"?" pr":""}"><div class="avh"><b>${r.num?"Aviso "+esc(r.num):"Sin nº de aviso"}</b><span class="tag ${r.tipo==="Primario"?"hr":"t"}">${r.tipo}</span><span class="tag">${dm(r.ts)} ${avHora(r.ts)}</span></div><dl>`
   +aLi("Paciente",r.nom)+aLi("NUHSA / DNI",r.doc)+aLi("Diagnóstico",r.dx)
   +(r.tipo==="Primario"?aLi("Dirección",r.dir):aLi("Hosp. origen",r.ori)+aLi("Médico origen",r.mo))
-  +aLi("Hosp. destino",r.des)+aLi("Médico destino",r.md)+aLi("Soporte",r.sop)
-  +`</dl><div class="row"><button class="chip" data-ae="${r.id}">✏️ Editar</button><button class="chip dng" data-ad="${r.id}">🗑 Eliminar</button></div></div>`;
+  +(r.tipo==="Primario"?"":aLi("Hosp. destino",r.des)+aLi("Médico destino",r.md))+aLi("Soporte",r.sop)
+  +`</dl><div class="row"><button class="chip" data-ar="${r.id}">🧭 Ruta</button><button class="chip" data-ae="${r.id}">✏️ Editar</button><button class="chip dng" data-ad="${r.id}">🗑 Eliminar</button></div></div>`;
 function pAv(){
   const all=aLoad().sort((a,b)=>b.ts-a.ts),g0=gIni(Date.now()),gs=new Map();
   all.forEach(r=>{const g=gIni(r.ts);if(!gs.has(g))gs.set(g,[]);gs.get(g).push(r)});
@@ -900,7 +1023,8 @@ $("aTipo").onclick=e=>{const b=e.target.closest("[data-at]");if(!b)return;aT=b.d
 $("aGuardar").onclick=aGuardar;
 $("aCancel").onclick=()=>aForm(null);
 $("aLista").onclick=e=>{
-  const ed=e.target.closest("[data-ae]"),del=e.target.closest("[data-ad]");
+  const ed=e.target.closest("[data-ae]"),del=e.target.closest("[data-ad]"),ar=e.target.closest("[data-ar]");
+  if(ar){const r=aLoad().find(x=>x.id===ar.dataset.ar);if(r)rtAbrir({tipo:r.tipo,ori:r.ori,des:r.des,dir:r.dir});return}
   if(ed){const r=aLoad().find(x=>x.id===ed.dataset.ae);if(r){aForm(r);$("avFt").scrollIntoView({behavior:"smooth",block:"start"})}}
   else if(del&&confirm("¿Eliminar este aviso? No se puede recuperar.")){
     const id=del.dataset.ad;if(aSave(aLoad().filter(x=>x.id!==id))){if(aEd===id)aForm(null);pAv();toast("Aviso eliminado")}}
@@ -932,12 +1056,26 @@ const svg=n=>`<svg viewBox="0 0 24 24" aria-hidden="true">${ICO[n]||ICO.link}</s
 const COL={avisos:"#0d9488",cpr:"#dc2626",dosis:"#7c3aed",o2:"#0891b2",rev:"#ea580c",med:"#2563eb",guias:"#4f46e5",alg:"#be123c",pdf:"#475569",otro:"#64748b"};
 /* --- navegación --- */
 const go2=t=>{if(location.hash.slice(1)!==t)location.hash=t;else show(t)};
+Object.assign(ICO,{
+  perf:'<path d="M12 3c3 4 5 6.5 5 9.5a5 5 0 0 1-10 0C7 9.500 9 7 12 3z"/><path d="M9.500 14a2.500 2.500 0 0 0 2.500 2.500"/>',
+  vent:'<path d="M12 3v8M12 11c-1 0-3-1-4-1-3 0-4 4-4 7 0 3 2 4 4 4 3 0 4-3 4-6M12 11c1 0 3-1 4-1 3 0 4 4 4 7 0 3-2 4-4 4-3 0-4-3-4-6"/>',
+  iot:'<path d="M4 8c3 0 5 1 7 3l5 5c1 1 2 3 4 3M4 12c2 0 3 1 4 2"/><circle cx="19" cy="19" r="1.500"/>',
+  esc:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/>',
+  tel:'<path d="M5 4h4l2 5-2.500 1.500a11 11 0 0 0 5 5L15 13l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>'
+});
+Object.assign(COL,{perf:"#9333ea",vent:"#0369a1",iot:"#b45309",esc:"#15803d"});
+const HT=[["dosis","Dosis","dosis","Dosis y dilución por fármaco"],["perf","Perfusiones","perf","Dosis ↔ ml/h"],["vent","Ventilación","vent","Vt, frecuencia y PaO₂/FiO₂"],["iot","Intubación","iot","Secuencia rápida"],["esc","Escalas","esc","Glasgow, NEWS2, qSOFA…"],["o2","Oxígeno","o2","Bombonas y autonomía"],["cpr","Parada","cpr","Cronómetro y metrónomo"],["avisos","Avisos","avisos","Registro por guardia"]];
 function hTab(h){
-  $("hTabs").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.h===h));
-  ["dosis","o2","cpr","avisos"].forEach(k=>$("h-"+k).hidden=k!==h);
-  if(h==="avisos")pAv();wakeSync();
+  const hub=!h||h==="hub";
+  $("hHub").hidden=!hub;$("hBar").hidden=hub;
+  HT.forEach(x=>$("h-"+x[0]).hidden=hub||x[0]!==h);
+  if(!hub)$("hTit").textContent=HT.find(x=>x[0]===h)[1];
+  if(h==="avisos")pAv();
+  wakeSync();scrollTo(0,0);
 }
-$("hTabs").onclick=e=>{const b=e.target.closest("[data-h]");if(b)hTab(b.dataset.h)};
+$("hHubG").innerHTML=HT.map(([k,t,ic,d])=>`<button class="hb" style="--c:${COL[k]}" data-h="${k}"><span class="ai">${svg(ic)}</span>${t}<small>${d}</small></button>`).join("");
+$("hHubG").onclick=e=>{const b=e.target.closest("[data-h]");if(b)hTab(b.dataset.h)};
+$("hBack").onclick=()=>hTab("hub");
 const irHerr=h=>{go2("herr");hTab(h)};
 const algGo=i=>visor(ALGIMG[i],ALGS[i][0]+" · "+ALGS[i][2]);
 function medGo(tp,m){tipo=tp;fc="todos";$("q").value=m?m[1]:"";pTipo();pMed();go2("medicacion")}
@@ -1011,6 +1149,244 @@ $("hoyBox").onclick=e=>{
   const tk=e.target.closest("[data-k]"),g=e.target.closest("[data-i]"),nv=e.target.closest("[data-go]");
   if(tk)marcar(+tk.dataset.k);else if(g)revGo(+g.dataset.i);else if(nv)go2(nv.dataset.go);
 };
+/* ===================== HERRAMIENTAS NUEVAS · perfusiones, ventilación, intubación, escalas, ruta ===================== */
+const nv=id=>parseFloat($(id).value);
+const sgSet=(id,v)=>$(id).querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===v));
+const sgBind=(id,cb)=>{$(id).onclick=e=>{const b=e.target.closest("[data-v]");if(b){sgSet(id,b.dataset.v);cb(b.dataset.v)}}};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const rb=(c,h)=>`<div class="res${c?" "+c:""}">${h}</div>`;
+const r2=n=>fmt(Math.round(n*100)/100);
+const r1=n=>fmt(Math.round(n*10)/10);
+
+/* ---------- Perfusiones ---------- */
+const PFU=[["ugkgmin","mcg/kg/min",60,1,"m"],["ugkgh","mcg/kg/h",1,1,"m"],["mgkgh","mg/kg/h",1000,1,"m"],["ugmin","mcg/min",60,0,"m"],["mgh","mg/h",1000,0,"m"],["mgmin","mg/min",60000,0,"m"],["uih","UI/h",1,0,"u"],["uikgh","UI/kg/h",1,1,"u"]];
+$("pfDU").innerHTML=PFU.map(u=>`<option value="${u[0]}">${u[1]}</option>`).join("");
+let pfM="d2v";
+function pfCalc(o){
+  const u=PFU.find(x=>x[0]===o.du),fam=o.cu==="UI"?"u":"m";
+  if(!(o.cant>0)||!(o.vol>0))return{msg:"Introduce la cantidad de fármaco y el volumen final."};
+  if(u[4]!==fam)return{err:"La unidad de dosis ("+u[1]+") no es compatible con la cantidad en "+o.cu+". Revisa las unidades."};
+  if(u[3]&&!(o.peso>0))return{msg:"Indica el peso del paciente."};
+  const C=o.cant*(o.cu==="mg"?1000:1)/o.vol,fac=u[2]*(u[3]?o.peso:1);
+  if(o.modo==="d2v"){if(!(o.dose>0))return{msg:"Introduce la dosis deseada."};const r=o.dose*fac/C;return{C,fam,u,rate:r,dur:o.vol/r}}
+  if(!(o.rate>0))return{msg:"Introduce la velocidad de la bomba."};
+  return{C,fam,u,dose:o.rate*C/fac,dur:o.vol/o.rate};
+}
+function perf(){
+  const d2=pfM==="d2v",u=PFU.find(x=>x[0]===$("pfDU").value);
+  $("pfPesoW").hidden=!u[3];$("pfDoseW").hidden=!d2;$("pfRateW").hidden=d2;
+  const r=pfCalc({modo:pfM,cant:nv("pfCant"),cu:$("pfCU").value,vol:nv("pfVol"),peso:nv("pfPeso"),dose:nv("pfDose"),rate:nv("pfRate"),du:u[0]}),o=$("pfRes");
+  if(r.msg){o.innerHTML=`<p class="empty">${r.msg}</p>`;return}
+  if(r.err){o.innerHTML=`<div class="note alert">${r.err}</div>`;return}
+  const c=r.fam==="u"?fmt(r.C)+" UI/ml":r.C>=1000?fmt(r.C/1000)+" mg/ml":fmt(r.C)+" mcg/ml";
+  const rt=d2?r.rate:nv("pfRate"),w=rt>250?"Velocidad muy alta: revisa unidades y dilución.":rt<0.1?"Velocidad muy baja: revisa unidades y dilución.":"";
+  const h=(d2?`<div>Velocidad de la bomba</div><div class="big">${r2(r.rate)} ml/h</div>`:`<div>Dosis que recibe</div><div class="big">${fmt(Math.round(r.dose*1000)/1000)} ${r.u[1]}</div>`)
+   +`<p>Concentración de la mezcla: <b>${c}</b></p><p>A esa velocidad, la mezcla dura <b>${hm(r.dur)}</b>.</p>`+(w?`<p><b>⚠ ${w}</b></p>`:"");
+  o.innerHTML=rb(w?"am":"ok",h);
+}
+
+/* ---------- Ventilación ---------- */
+const pbw=(sx,h)=>(sx==="M"?45.5:50)+0.91*(h-152.4);
+function ventCalc(base,k,fr,ie){const vt=base*k,cyc=60/fr,ti=cyc/(1+ie);return{vt,vm:vt*fr/1000,cyc,ti,te:cyc-ti}}
+let vtM="ad",vtS="H";
+function vent(){
+  const ad=vtM==="ad",o=$("vtRes");$("vtAd").hidden=!ad;$("vtNi").hidden=ad;
+  let base,lab;
+  if(ad){const h=nv("vtH");if(!(h>=120&&h<=230)){o.innerHTML=`<p class="empty">Introduce la altura (120–230 cm).</p>`;return}base=pbw(vtS,h);lab="Peso ideal (PBW)"}
+  else{const w=nv("vtW");if(!(w>0)){o.innerHTML=`<p class="empty">Introduce el peso del niño.</p>`;return}base=w;lab="Peso real"}
+  const k=nv("vtK")>0?nv("vtK"):6,fr=nv("vtF")>0?nv("vtF"):14,r=ventCalc(base,k,fr,+$("vtIE").value);
+  o.innerHTML=rb("ok",`<div>${lab}: <b>${r1(base)} kg</b></div><div class="big">${Math.round(r.vt)} ml</div><p>Volumen corriente a ${fmt(k)} ml/kg · volumen minuto <b>${r1(r.vm)} L/min</b></p><p>Ciclo de ${r1(r.cyc)} s: inspiración ${r2(r.ti)} s · espiración ${r2(r.te)} s</p><hr style="opacity:.3"><p>A 6 ml/kg: <b>${Math.round(base*6)} ml</b> · 7 ml/kg: <b>${Math.round(base*7)} ml</b> · 8 ml/kg: <b>${Math.round(base*8)} ml</b></p>`);
+}
+function pafi(){
+  const pa=nv("vtPa"),fi=nv("vtFi"),o=$("vtPf");
+  if(!(pa>0)||!(fi>=21&&fi<=100)){o.innerHTML=`<p class="empty">Introduce PaO₂ (mmHg) y FiO₂ (21–100 %).</p>`;return}
+  const r=pa/(fi/100),c=r>300?["ok","Por encima de 300: fuera del rango de SDRA"]:r>200?["am","Leve (200–300)"]:r>100?["am","Moderada (100–200)"]:["rd","Grave (≤ 100)"];
+  o.innerHTML=rb(c[0],`<div>PaO₂/FiO₂</div><div class="big">${Math.round(r)}</div><p>${c[1]} · clasificación de Berlín (con PEEP ≥ 5 cmH₂O)</p>`);
+}
+
+/* ---------- Intubación de secuencia rápida ---------- */
+/* [id, nombre, dosis mín/kg, dosis máx/kg, unidad, solo (a=adulto, p=pediátrico), nota] */
+const IOTD=[
+ ["etom","Etomidato",0.2,0.3,"mg",0,"Inducción. Puede inhibir la función suprarrenal; valorar en sepsis."],
+ ["ket","Ketamina",1,2,"mg",0,"Inducción. Reducir la dosis si hay inestabilidad hemodinámica."],
+ ["prop","Propofol",1,2,"mg",0,"Inducción. Riesgo de hipotensión: evitar o reducir en inestables."],
+ ["fent","Fentanilo",1,3,"mcg",0,"Analgesia y atenuar la respuesta presora. Administrar lento."],
+ ["roc","Rocuronio",1,1.2,"mg",0,"Relajante no despolarizante."],
+ ["sux","Succinilcolina",1,1.5,"mg","a","Contraindicada con hiperpotasemia, miopatías, quemadura o aplastamiento tardíos y antecedente de hipertermia maligna."],
+ ["suxp","Succinilcolina",1,2,"mg","p","Mismas contraindicaciones. En lactantes se usa el extremo alto."],
+ ["sug","Sugammadex (rescate)",16,16,"mg",0,"Reversión inmediata tras rocuronio 1,2 mg/kg si no se puede intubar ni ventilar."],
+ ["atr","Atropina",0.02,0.02,"mg","p","Pediátrico: prevenir bradicardia vagal. Confirma dosis y mínimos en tu protocolo."]
+];
+let iotM="ad",iotS="H";const IOTC={};
+const iotList=()=>IOTD.filter(d=>!d[5]||d[5]===(iotM==="ad"?"a":"p"));
+function iotBuild(){
+  $("iotRows").innerHTML=iotList().map(d=>`<div class="iot"><div class="it"><b>${d[1]}</b><span class="idz" id="iz-${d[0]}">—</span></div><small>${d[2]===d[3]?fmt(d[2]):fmt(d[2])+"–"+fmt(d[3])} ${d[4]}/kg · ${d[6]}</small><div class="iq"><input type="number" step="any" min="0" inputmode="decimal" data-ic="${d[0]}" placeholder="${d[4]}/ml" aria-label="Concentración de ${d[1]} en ${d[4]}/ml" value="${IOTC[d[0]]||""}"><span id="im-${d[0]}"></span></div></div>`).join("");
+}
+function iotTubo(a,sx,ad){
+  if(ad)return sx==="M"?{txt:"TET orientativo: 7,0–7,5 mm · profundidad ≈ 21 cm a nivel de los dientes"}:{txt:"TET orientativo: 7,5–8,0 mm · profundidad ≈ 23 cm a nivel de los dientes"};
+  if(!(a>=0))return{txt:"Indica la edad para calcular el tubo."};
+  if(a<1)return{txt:"Menor de 1 año: usa la cinta de longitud o tu protocolo pediátrico para elegir el tubo."};
+  const cu=Math.round((a/4+3.5)*2)/2,un=Math.round((a/4+4)*2)/2;
+  return{txt:"TET con balón ≈ "+fmt(cu)+" mm (profundidad ≈ "+fmt(Math.round(cu*3*2)/2)+" cm a labios) · sin balón ≈ "+fmt(un)+" mm"};
+}
+function iot(){
+  const w=nv("iotW"),ad=iotM==="ad";$("iotAdW").hidden=!ad;$("iotPeW").hidden=ad;
+  iotList().forEach(d=>{
+    const z=$("iz-"+d[0]),m=$("im-"+d[0]);if(!z)return;
+    if(!(w>0)){z.textContent="—";m.textContent="";return}
+    const a=d[2]*w,b=d[3]*w,c=parseFloat(IOTC[d[0]]);
+    z.textContent=(a===b?r2(a):r2(a)+"–"+r2(b))+" "+d[4];
+    m.textContent=c>0?"≈ "+(a===b?r2(a/c):r2(a/c)+"–"+r2(b/c))+" ml":"";
+  });
+  $("iotTube").innerHTML=`<div class="note">${iotTubo(nv("iotA"),iotS,ad).txt}</div>`;
+}
+
+/* ---------- Escalas ---------- */
+const sp2=(v,o)=>v<=83?3:v<=85?2:v<=87?1:v<=92?0:!o?0:v<=94?1:v<=96?2:3;
+function news2(o){
+  const rg=(v,t)=>{for(const[m,s]of t)if(v<=m)return s;return 0};
+  const p=[["Frecuencia respiratoria",rg(o.rr,[[8,3],[11,1],[20,0],[24,2],[Infinity,3]])],
+   ["SpO₂",o.esc===2?sp2(o.spo2,o.o2):rg(o.spo2,[[91,3],[93,2],[95,1],[Infinity,0]])],
+   ["Oxígeno suplementario",o.o2?2:0],
+   ["Tensión sistólica",rg(o.pas,[[90,3],[100,2],[110,1],[219,0],[Infinity,3]])],
+   ["Frecuencia cardiaca",rg(o.fc,[[40,3],[50,1],[90,0],[110,1],[130,2],[Infinity,3]])],
+   ["Nivel de conciencia",o.cons>0?3:0],
+   ["Temperatura",rg(o.t,[[35,3],[36,1],[38,0],[39,1],[Infinity,2]])]];
+  const tot=p.reduce((a,x)=>a+x[1],0),rojo=p.some(x=>x[1]===3);
+  const risk=tot>=7?["rd","Riesgo alto: respuesta de emergencia"]:tot>=5?["am","Riesgo medio: valoración urgente"]:rojo?["am","Un parámetro con 3 puntos: valoración urgente"]:["ok","Riesgo bajo"];
+  return{p,tot,risk};
+}
+let escCur="gcs",nwE=1;
+function esc2(){
+  document.querySelectorAll("#escSel .chip").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===escCur));
+  ["gcs","news","qsofa","shock"].forEach(k=>$("es-"+k).hidden=k!==escCur);
+  if(escCur==="gcs"){
+    const e=+$("gcE").value,v=+$("gcV").value,m=+$("gcM").value,t=e+v+m;
+    $("gcRes").innerHTML=rb(t>=13?"ok":t>=9?"am":"rd",`<div>Glasgow</div><div class="big">${t} / 15</div><p>O${e} V${v} M${m} · ${t>=13?"Leve (13–15)":t>=9?"Moderado (9–12)":"Grave (≤ 8)"}</p>`);
+  }
+  if(escCur==="news"){
+    const o={rr:nv("nwR"),spo2:nv("nwS"),esc:nwE,o2:$("nwO").checked,pas:nv("nwP"),fc:nv("nwF"),cons:+$("nwC").value,t:nv("nwT")};
+    if(!(o.rr>0&&o.spo2>0&&o.pas>0&&o.fc>0&&o.t>0)){$("nwRes").innerHTML=`<p class="empty">Rellena todos los parámetros para calcular.</p>`;return}
+    const r=news2(o);
+    $("nwRes").innerHTML=rb(r.risk[0],`<div>NEWS2</div><div class="big">${r.tot}</div><p><b>${r.risk[1]}</b></p><hr style="opacity:.3"><p>${r.p.map(x=>x[0]+": <b>"+x[1]+"</b>").join(" · ")}</p>`);
+  }
+  if(escCur==="qsofa"){
+    const n=["qs1","qs2","qs3"].filter(i=>$(i).checked).length;
+    $("qsRes").innerHTML=rb(n>=2?"rd":"ok",`<div>qSOFA</div><div class="big">${n} / 3</div><p>${n>=2?"≥ 2: mayor riesgo de mala evolución si hay sospecha de infección. Valorar sepsis y escalar.":"Menos de 2 criterios. No descarta sepsis: valora clínica y lactato."}</p>`);
+  }
+  if(escCur==="shock"){
+    const f=nv("shF"),p=nv("shP");
+    if(!(f>0)||!(p>0)){$("shRes").innerHTML=`<p class="empty">Introduce frecuencia cardiaca y tensión sistólica.</p>`;return}
+    const i=f/p;
+    $("shRes").innerHTML=rb(i>=1?"rd":i>=0.9?"am":"ok",`<div>FC / TAS</div><div class="big">${r2(i)}</div><p>${i>=1?"≥ 1: posible shock, valora perfusión y causa.":i>=0.9?"0,9–1: zona límite, vigilar de cerca.":"Rango normal habitual: 0,5–0,7 (hasta 0,9)."}</p>`);
+  }
+}
+
+/* ---------- Eventos de las herramientas nuevas ---------- */
+sgBind("pfModo",v=>{pfM=v;perf()});
+sgBind("vtModo",v=>{vtM=v;vent()});sgBind("vtSex",v=>{vtS=v;vent()});
+sgBind("iotModo",v=>{iotM=v;iotBuild();iot()});sgBind("iotSex",v=>{iotS=v;iot()});
+sgBind("nwE",v=>{nwE=+v;esc2()});
+$("escSel").onclick=e=>{const b=e.target.closest("[data-v]");if(b){escCur=b.dataset.v;esc2()}};
+["input","change"].forEach(ev=>{
+  $("h-perf").addEventListener(ev,perf);
+  $("h-vent").addEventListener(ev,()=>{vent();pafi()});
+  $("h-iot").addEventListener(ev,e=>{const t=e.target;if(t.dataset&&t.dataset.ic)IOTC[t.dataset.ic]=t.value;iot()});
+  $("h-esc").addEventListener(ev,esc2);
+});
+iotBuild();perf();vent();pafi();iot();esc2();
+
+/* ---------- Ruta y tiempo (navegación + estimación) ---------- */
+const KNV="tpc-nav",RT_APPS=[["google","Google Maps"],["waze","Waze"],["apple","Apple Maps"]],RT_VB="-7.6,38.8,-1.6,35.9";
+let rtApp=lj(KNV,/iPhone|iPad|iPod/.test(navigator.userAgent)?"apple":"google");
+if(!RT_APPS.some(a=>a[0]===rtApp))rtApp="google";
+let rtCtx={tr:true};
+const navUrl=(app,d)=>{const q=encodeURIComponent(d);
+  return app==="waze"?"https://waze.com/ul?q="+q+"&navigate=yes":app==="apple"?"https://maps.apple.com/?daddr="+q+"&dirflg=d":"https://www.google.com/maps/dir/?api=1&destination="+q+"&travelmode=driving&dir_action=navigate"};
+const dt=s=>{const m=Math.max(1,Math.round(s/60));return m>=60?Math.floor(m/60)+" h "+String(m%60).padStart(2,"0")+" min":m+" min"};
+async function rtFetch(u){const c=new AbortController(),t=setTimeout(()=>c.abort(),14000);try{const r=await fetch(u,{signal:c.signal});return await r.json()}finally{clearTimeout(t)}}
+async function rtGeo(q){
+  const j=await rtFetch("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=es&accept-language=es&viewbox="+RT_VB+"&q="+encodeURIComponent(q));
+  return Array.isArray(j)&&j.length?{lat:+j[0].lat,lon:+j[0].lon,n:String(j[0].display_name||"")}:null;
+}
+const rtPos=()=>new Promise((ok,no)=>{if(!navigator.geolocation)return no(new Error("gps"));navigator.geolocation.getCurrentPosition(p=>ok({lat:p.coords.latitude,lon:p.coords.longitude}),no,{enableHighAccuracy:true,timeout:12000,maximumAge:30000})});
+function rtUI(){
+  $("rtApp").innerHTML=RT_APPS.map(([k,t])=>`<button class="chip" data-ra="${k}" aria-pressed="${k===rtApp}">${t}</button>`).join("");
+  const ori=$("rtOri").value.trim(),des=$("rtDes").value.trim(),dir=$("rtDir").value.trim();
+  const a=(t,d)=>d?`<a class="big-b nv" href="${esc(navUrl(rtApp,d))}" target="_blank" rel="noopener">${t}</a>`:"";
+  $("rtGo").innerHTML=rtCtx.tr?a("▶ 1 · Ir al origen",ori)+a("▶ 2 · Ir al destino",des):a("▶ Ir a la dirección",dir);
+}
+function rtAbrir(p){
+  rtCtx={tr:p.tipo!=="Primario"};$("rtTr").hidden=!rtCtx.tr;$("rtPr").hidden=rtCtx.tr;
+  $("rtOri").value=p.ori||"";$("rtDes").value=p.des||"";$("rtDir").value=p.dir||"";$("rtRes").innerHTML="";
+  rtUI();ovOn("ovRuta");
+}
+function rtShow(pts,legs){
+  const est=Math.max(0,nv("rtEst")||0),km=m=>fmt(Math.round(m/100)/10),hr=t=>avHora(t),loc=p=>p.n?`<br><small>Localizado: ${esc(p.n.split(",").slice(0,3).join(","))}</small>`:"";
+  let t=Date.now(),h="",tot=0;
+  if(rtCtx.tr){
+    t+=legs[0].duration*1000;tot+=legs[0].duration;
+    h+=`<p><b>Hasta el origen</b>: ${dt(legs[0].duration)} · ${km(legs[0].distance)} km → llegada ≈ <b>${hr(t)}</b>${loc(pts[1])}</p>`;
+    if(est>0){t+=est*60000;tot+=est*60;h+=`<p><b>En origen</b>: ${est} min → salida ≈ <b>${hr(t)}</b></p>`}
+    t+=legs[1].duration*1000;tot+=legs[1].duration;
+    h+=`<p><b>Origen → destino</b>: ${dt(legs[1].duration)} · ${km(legs[1].distance)} km → llegada ≈ <b>${hr(t)}</b>${loc(pts[2])}</p><hr style="opacity:.3"><div>Total desde ahora</div><div class="big">${dt(tot)}</div>`;
+    h+=`<button class="chip" style="margin-top:10px" data-o2="${Math.round(legs[1].duration/360)/10}">→ Pasar ${dt(legs[1].duration)} a la calculadora de oxígeno</button>`;
+  }else{
+    t+=legs[0].duration*1000;
+    h+=`<div>Hasta la dirección</div><div class="big">${dt(legs[0].duration)}</div><p>${km(legs[0].distance)} km → llegada ≈ <b>${hr(t)}</b>${loc(pts[1])}</p>`;
+  }
+  h+=`<p><small>Estimación por carretera con tráfico normal. No incluye tráfico en tiempo real ni la prioridad del vehículo: úsala como orientación.</small></p>`;
+  $("rtRes").innerHTML=rb("ok",h);
+}
+async function rtCalc(){
+  const out=$("rtRes"),sal=$("rtSal").value.trim(),tr=rtCtx.tr;
+  const lug=tr?[["origen",$("rtOri").value.trim()],["destino",$("rtDes").value.trim()]]:[["dirección",$("rtDir").value.trim()]];
+  if(lug.some(l=>!l[1])){out.innerHTML=`<div class="note alert">Rellena ${tr?"el origen y el destino":"la dirección"}.</div>`;return}
+  $("rtCalc").disabled=true;
+  try{
+    out.innerHTML=`<p class="empty">Localizando…</p>`;
+    const pts=[];
+    if(sal){const g=await rtGeo(sal);if(!g)throw new Error("No encuentro el punto de salida «"+sal+"».");pts.push(g);await sleep(1100)}
+    else{try{pts.push(await rtPos())}catch(e){throw new Error("No he podido obtener tu ubicación. Permite el acceso a la ubicación en el navegador o escribe un punto de salida.")}}
+    for(let i=0;i<lug.length;i++){
+      const g=await rtGeo(lug[i][1]);if(!g)throw new Error("No encuentro «"+lug[i][1]+"». Prueba con la dirección completa o con el nombre del hospital y la ciudad.");
+      pts.push(g);if(i<lug.length-1)await sleep(1100);
+    }
+    out.innerHTML=`<p class="empty">Calculando ruta…</p>`;
+    const j=await rtFetch("https://router.project-osrm.org/route/v1/driving/"+pts.map(p=>p.lon+","+p.lat).join(";")+"?overview=false");
+    if(!j||j.code!=="Ok"||!j.routes||!j.routes[0])throw new Error("No se ha podido calcular una ruta por carretera entre esos puntos.");
+    rtShow(pts,j.routes[0].legs);
+  }catch(e){
+    out.innerHTML=`<div class="note alert">${esc(e.name==="AbortError"||e instanceof TypeError?"No hay conexión con el servicio de mapas. Puedes abrir igualmente la navegación con los botones de abajo.":e.message)}</div>`;
+  }finally{$("rtCalc").disabled=false}
+}
+$("ovRuta").addEventListener("click",e=>{
+  const a=e.target.closest("[data-ra]");
+  if(a){rtApp=a.dataset.ra;sj(KNV,rtApp);rtUI();return}
+  if(e.target.closest("#rtGps")){$("rtSal").value="";toast("Saldré desde mi ubicación actual (GPS)");return}
+  if(e.target.closest("#rtCalc")){rtCalc();return}
+  const o=e.target.closest("[data-o2]");
+  if(o){$("oH").value=o.dataset.o2;o2();ovOff("ovRuta");irHerr("o2")}
+});
+["rtOri","rtDes","rtDir"].forEach(id=>$(id).addEventListener("input",rtUI));
+$("aRuta").onclick=()=>rtAbrir({tipo:aT,ori:$("av_ori").value,des:$("av_des").value,dir:$("av_dir").value});
+
+/* ---------- Soporte (avisos): botones en vez de texto libre ---------- */
+const SOPS=["Monitor","Vía","Oxígeno","Ventilación mecánica","Perfusiones","Marcapasos","Drenajes","Inmovilización"];
+const sopGet=()=>$("av_sop").value.split(",").map(x=>x.trim()).filter(Boolean);
+function sopUI(){const cur=sopGet().map(x=>x.toLowerCase());$("sopCh").innerHTML=SOPS.map(s=>`<button type="button" class="chip" data-sp="${s}" aria-pressed="${cur.includes(s.toLowerCase())}">${s}</button>`).join("")}
+$("sopCh").onclick=e=>{const b=e.target.closest("[data-sp]");if(!b)return;const l=sopGet(),i=l.findIndex(x=>x.toLowerCase()===b.dataset.sp.toLowerCase());if(i>=0)l.splice(i,1);else l.push(b.dataset.sp);$("av_sop").value=l.join(", ");sopUI()};
+$("av_sop").addEventListener("input",sopUI);
+
+/* ---------- Accesos rápidos nuevos (incluye llamar al C.O.C. Córdoba) ---------- */
+Object.assign(ACC,{
+ "t:perf":{t:"Perfusiones",s:"Dosis ↔ ml/h según dilución y peso",ic:"perf",c:COL.perf,g:"Herramientas",k:"perfusion bomba ml/h mcg/kg/min noradrenalina dopamina dobutamina nitroglicerina midazolam dilucion calculadora velocidad",run:()=>irHerr("perf")},
+ "t:vent":{t:"Ventilación",s:"Volumen corriente, volumen minuto y PaO₂/FiO₂",ic:"vent",c:COL.vent,g:"Herramientas",k:"ventilacion respirador vt volumen corriente peso ideal fr peep pafi sdra mecanica",run:()=>irHerr("vent")},
+ "t:iot":{t:"Intubación",s:"Secuencia rápida: dosis por peso y tubo",ic:"iot",c:COL.iot,g:"Herramientas",k:"intubacion iot sri secuencia rapida etomidato ketamina rocuronio succinilcolina tubo tet via aerea",run:()=>irHerr("iot")},
+ "t:esc":{t:"Escalas",s:"Glasgow, NEWS2, qSOFA, índice de shock",ic:"esc",c:COL.esc,g:"Herramientas",k:"escalas glasgow gcs news2 qsofa sepsis indice shock puntuacion",run:()=>irHerr("esc")},
+ "t:coc":{t:"C.O.C. Córdoba",s:"Llamar al 957 25 24 50",ic:"tel",c:"#dc2626",g:"Llamar",k:"coc coordinacion coordinador cordoba telefono llamar llamada 957252450",run:()=>{location.href="tel:957252450"}}
+});
+
 /* ===================== RELEVO entre compañeros =====================
    Los mensajes viajan por un servicio propio (Google Apps Script + una hoja de cálculo). Ver README. */
 const RELEVO_CLAVE="";   /* opcional: si la pones aquí y en el script (CLAVE), el servicio rechaza peticiones sin ella. Nadie la teclea. */

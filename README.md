@@ -58,3 +58,9 @@ No escribáis **nombres, DNI ni NUHSA de pacientes** en los relevos (la app lo r
 - Hay que subir `centros.js` junto a `index.html` y `sw.js` (ahora `tpc-v11`).
 
 - En Avisos hay dos campos nuevos, **Ubicación del paciente en origen / destino** (planta, cama, UCI, Urgencias, Cardiología…). Se guardan y se muestran en el aviso, pero **no** se usan para el mapa ni la ruta: solo el hospital. Si eliges un hospital en las sugerencias escribiendo «UCI RDA», el hospital va a su campo y «UCI» pasa a la ubicación. `sw.js` ahora es `tpc-v12`.
+
+## RTPS y códigos en Avisos (`codigos.js`, `sw.js` ahora `tpc-v13`)
+- **RTPS** (traslados): se calcula con los 10 parámetros de la escala y se rellena sola según el **Soporte** marcado (Monitor → imprescindible, Vía → periférica, Oxígeno, Ventilación mecánica → vía aérea + V. mecánica, Perfusiones → fármacos grupo I, Marcapasos → no invasivo). Lo que no se deduce del soporte (hemodinámica, arritmias, FR, Glasgow, central/grupo II…) se ajusta a mano. Resultado: 0-2 convencional, 3-6 SVA con enfermero, ≥7 SVA medicalizada.
+- **Código de traslado (JC1)** de la propuesta de codificación + **CIE-9-MC** sugeridos a partir del diagnóstico, el hospital/ubicación de destino (hemodinámica, UCI, neurocirugía…) y el código de prealerta (ictus, trauma, angioplastia, sepsis).
+- **Primarios**: solo CIE-9, tras valoración médica: se escribe en Diagnóstico lo que cree el médico y propone los más cercanos.
+- Es un buscador por palabras clave, local y sin conexión (no IA externa). **Son orientativos**; los confirma el médico o codificación. Para añadir diagnósticos, edita una línea de `DX` en `codigos.js` (`CIE-9 | descripción | palabras sin tildes | cód. traslado | prealerta`). Subir `codigos.js` junto a `index.html` y `sw.js`.

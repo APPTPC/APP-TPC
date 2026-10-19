@@ -265,6 +265,7 @@ a.big-b.nv{display:flex;align-items:center;justify-content:center;min-height:50p
 .sug{border:1.5px solid var(--line);border-radius:12px;background:var(--card);margin:-4px 0 10px;overflow:hidden}.sug button{display:block;width:100%;text-align:left;padding:10px 12px;border:0;border-bottom:1px solid var(--line);background:none;color:var(--ink);font:inherit;font-size:.92rem;cursor:pointer}.sug button:last-child{border-bottom:0}.sug small{display:block;opacity:.7}
 </style>
 <script src="centros.js"></script>
+<script src="codigos.js"></script>
 </head>
 <body>
 <header class="top">
@@ -480,6 +481,12 @@ a.big-b.nv{display:flex;align-items:center;justify-content:center;min-height:50p
     <label for="av_sop">Soporte</label>
     <div class="row" id="sopCh" role="group" aria-label="Soporte"></div>
     <input type="text" id="av_sop" autocomplete="off" placeholder="Otro soporte (separa con comas)">
+    <details class="med" id="aRt" style="margin-top:12px"><summary><span class="mn"><b>Riesgo en el traslado (RTPS)</b><small id="rtT">0 pts</small></span></summary><div class="mb"><div class="note">Se rellena según el soporte marcado; ajusta lo que proceda.</div><div id="rtB"></div></div></details>
+    <input type="hidden" id="av_rtps">
+    <h3 class="amb" id="coH" style="margin-top:14px">Códigos</h3>
+    <div class="note" id="coN"></div><div class="row" id="coS"></div>
+    <div id="aCoTr"><label for="av_cod">Código de traslado (JC1)</label><input type="text" id="av_cod" autocomplete="off" placeholder="p. ej. CV03" autocapitalize="characters"></div>
+    <label for="av_cie" id="cieL">CIE-9</label><input type="text" id="av_cie" autocomplete="off" placeholder="p. ej. 410.91">
     <button class="big-b sv" id="aGuardar">Guardar aviso</button>
     <button class="big-b cn" id="aCancel" hidden>Cancelar edición</button>
     <div id="aLista" style="margin-top:6px"></div>
@@ -985,7 +992,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(bOpen)bCerrar(fa
 addEventListener("popstate",()=>{cerrar();bCerrar(true)});
 addEventListener("hashchange",()=>{cerrar();bCerrar(true);show(location.hash.slice(1))});
 /* ---------- Avisos (guardados solo en este móvil, localStorage) ---------- */
-const KA="tpc-avisos",AF=["num","nom","doc","dx","ori","uo","mo","dir","des","ud","md","sop"];
+const KA="tpc-avisos",AF=["num","nom","doc","dx","ori","uo","mo","dir","des","ud","md","sop","rtps","cod","cie"];
 let aT="Traslado",aEd=null;
 const aLoad=()=>{try{const a=JSON.parse(localStorage.getItem(KA)||"[]");return Array.isArray(a)?a:[]}catch(e){return[]}};
 const aSave=a=>{try{localStorage.setItem(KA,JSON.stringify(a));return true}catch(e){toast("No se pudo guardar en este móvil");return false}};
@@ -995,14 +1002,14 @@ const gIni=ts=>{const d=new Date(ts);if(d.getHours()<10)d.setDate(d.getDate()-1)
 const dm=ts=>{const d=new Date(ts);return p2(d.getDate())+"/"+p2(d.getMonth()+1)};
 const avHora=ts=>{const d=new Date(ts);return p2(d.getHours())+":"+p2(d.getMinutes())};
 const gTit=g=>{const f=new Date(g);f.setDate(f.getDate()+1);return "Guardia "+dm(g)+" 10:00 → "+dm(f.getTime())+" 10:00"};
-function aTipoUI(){$("aTipo").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.at===aT));$("aTr").hidden=aT==="Primario";$("aPr").hidden=aT!=="Primario";$("aDes").hidden=aT==="Primario"}
+function aTipoUI(){$("aTipo").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.at===aT));$("aTr").hidden=aT==="Primario";$("aPr").hidden=aT!=="Primario";$("aDes").hidden=aT==="Primario";$("aRt").hidden=aT==="Primario";if(window.coUI)coUI()}
 function aForm(r){aEd=r?r.id:null;aT=r?r.tipo:"Traslado";AF.forEach(k=>$("av_"+k).value=r&&r[k]?r[k]:"");$("av_fh").value=aInp(r?r.ts:Date.now());
-  $("avFt").textContent=r?"Editando aviso":"Nuevo aviso";$("aGuardar").textContent=r?"Guardar cambios":"Guardar aviso";$("aCancel").hidden=!r;aTipoUI();sopUI()}
+  $("avFt").textContent=r?"Editando aviso":"Nuevo aviso";$("aGuardar").textContent=r?"Guardar cambios":"Guardar aviso";$("aCancel").hidden=!r;aTipoUI();rtMan=new Set(r&&r.rtps?[0,1,2,3,4,5,6,7,8,9]:[]);sopUI();rtUI();coUI()}
 function aGuardar(){
   const v={};AF.forEach(k=>v[k]=$("av_"+k).value.trim());
   if(!v.num&&!v.nom){toast("Indica al menos el nº de aviso o el nombre");return}
   let ts=new Date($("av_fh").value).getTime();if(!ts)ts=Date.now();
-  if(aT==="Primario"){v.ori="";v.uo="";v.mo="";v.des="";v.ud="";v.md=""}else v.dir="";
+  if(aT==="Primario"){v.ori="";v.uo="";v.mo="";v.des="";v.ud="";v.md="";v.cod="";v.rtps=""}else v.dir="";
   const r=Object.assign({id:aEd||Date.now().toString(36)+Math.random().toString(36).slice(2,6),ts,tipo:aT},v);
   const l=aLoad(),i=l.findIndex(x=>x.id===r.id);if(i>=0)l[i]=r;else l.push(r);
   if(!aSave(l))return;
@@ -1012,7 +1019,7 @@ const aLi=(k,v)=>v?`<dt>${k}</dt><dd>${esc(v)}</dd>`:"";
 const aCard=r=>`<div class="av${r.tipo==="Primario"?" pr":""}"><div class="avh"><b>${r.num?"Aviso "+esc(r.num):"Sin nº de aviso"}</b><span class="tag ${r.tipo==="Primario"?"hr":"t"}">${r.tipo}</span><span class="tag">${dm(r.ts)} ${avHora(r.ts)}</span></div><dl>`
   +aLi("Paciente",r.nom)+aLi("NUHSA / DNI",r.doc)+aLi("Diagnóstico",r.dx)
   +(r.tipo==="Primario"?aLi("Dirección",r.dir):aLi("Hosp. origen",r.ori)+aLi("Ubic. origen",r.uo)+aLi("Médico origen",r.mo))
-  +(r.tipo==="Primario"?"":aLi("Hosp. destino",r.des)+aLi("Ubic. destino",r.ud)+aLi("Médico destino",r.md))+aLi("Soporte",r.sop)
+  +(r.tipo==="Primario"?"":aLi("Hosp. destino",r.des)+aLi("Ubic. destino",r.ud)+aLi("Médico destino",r.md))+aLi("Soporte",r.sop)+(r.tipo!=="Primario"&&r.rtps?aLi("RTPS",COD.rtTot(r.rtps)+" pts · "+COD.rtRec(COD.rtTot(r.rtps))):"")+aLi("Cód. traslado",r.cod)+aLi("CIE-9",r.cie)
   +`</dl><div class="row"><button class="chip" data-ar="${r.id}">🧭 Ruta</button><button class="chip" data-ae="${r.id}">✏️ Editar</button><button class="chip dng" data-ad="${r.id}">🗑 Eliminar</button></div></div>`;
 function pAv(){
   const all=aLoad().sort((a,b)=>b.ts-a.ts),g0=gIni(Date.now()),gs=new Map();
@@ -1396,9 +1403,28 @@ $("aRuta").onclick=()=>rtAbrir({tipo:aT,ori:$("av_ori").value,des:$("av_des").va
 /* ---------- Soporte (avisos): botones en vez de texto libre ---------- */
 const SOPS=["Monitor","Vía","Oxígeno","Ventilación mecánica","Perfusiones","Marcapasos","Drenajes","Inmovilización"];
 const sopGet=()=>$("av_sop").value.split(",").map(x=>x.trim()).filter(Boolean);
-function sopUI(){const cur=sopGet().map(x=>x.toLowerCase());$("sopCh").innerHTML=SOPS.map(s=>`<button type="button" class="chip" data-sp="${s}" aria-pressed="${cur.includes(s.toLowerCase())}">${s}</button>`).join("")}
+function sopUI(){if(window.rtAuto)rtAuto();const cur=sopGet().map(x=>x.toLowerCase());$("sopCh").innerHTML=SOPS.map(s=>`<button type="button" class="chip" data-sp="${s}" aria-pressed="${cur.includes(s.toLowerCase())}">${s}</button>`).join("")}
 $("sopCh").onclick=e=>{const b=e.target.closest("[data-sp]");if(!b)return;const l=sopGet(),i=l.findIndex(x=>x.toLowerCase()===b.dataset.sp.toLowerCase());if(i>=0)l.splice(i,1);else l.push(b.dataset.sp);$("av_sop").value=l.join(", ");sopUI()};
 $("av_sop").addEventListener("input",sopUI);
+/* ---------- RTPS y códigos (traslado: JC1 + CIE-9; primario: solo CIE-9 tras valoración médica) ---------- */
+const SPM={"Monitor":{1:2},"Vía":{3:1},"Oxígeno":{7:1},"Ventilación mecánica":{6:2,7:2},"Perfusiones":{9:1},"Marcapasos":{4:1}};
+let rtMan=new Set();
+const rtV=()=>{const v=$("av_rtps").value;return /^[012]{10}$/.test(v)?[...v].map(Number):Array(10).fill(0)};
+function rtUI(){const B=$("rtB");
+  if(!B.firstChild)B.innerHTML=COD.RT.map((r,i)=>`<label for="rt${i}">${r[0]}</label><select id="rt${i}" data-rt="${i}">${r[1].map((o,j)=>`<option value="${j}">${j} · ${o}</option>`).join("")}</select>`).join("");
+  const v=rtV();v.forEach((x,i)=>$("rt"+i).value=x);$("av_rtps").value=v.join("");
+  const t=COD.rtTot(v.join(""));$("rtT").textContent=t+" pts · "+COD.rtRec(t)}
+function rtAuto(){const b=Array(10).fill(0);sopGet().forEach(s=>{const k=SOPS.find(x=>x.toLowerCase()===s.toLowerCase()),m=k&&SPM[k];if(m)for(const i in m)b[i]=Math.max(b[i],m[i])});
+  const v=rtV();v.forEach((x,i)=>{if(!rtMan.has(i))v[i]=b[i]});$("av_rtps").value=v.join("");rtUI()}
+$("rtB").onchange=e=>{const s=e.target.closest("[data-rt]");if(!s)return;const i=+s.dataset.rt,v=rtV();v[i]=+s.value;rtMan.add(i);$("av_rtps").value=v.join("");rtUI()};
+function coUI(){const p=aT==="Primario",s=COD.sug({tipo:aT,dx:$("av_dx").value,des:$("av_des").value,ud:$("av_ud").value});
+  $("aCoTr").hidden=p;$("cieL").textContent=p?"CIE-9 (tras valoración médica)":"CIE-9 (orientativo)";
+  $("coN").innerHTML=(p?"Escribe en <b>Diagnóstico</b> lo que valora el médico y te propongo el CIE-9 más cercano.":"Sugerencias a partir del diagnóstico, el destino y su ubicación.")+" <b>Orientativo: lo confirma el médico o codificación.</b>";
+  const ch=(k,c,t)=>`<button type="button" class="chip" data-co="${k}" data-v="${c}">${esc(c)} · ${esc(t)}</button>`;
+  $("coS").innerHTML=(p?"":s.tr.map(x=>ch("cod",x.c,x.d)).join(""))+s.cie.map(x=>ch("cie",x.c,x.d)).join("")+(s.ce.length?`<span class="tag hr">${esc(s.ce.join(" · "))}</span>`:"")}
+$("coS").onclick=e=>{const b=e.target.closest("[data-co]");if(!b)return;if(b.dataset.co==="cod")$("av_cod").value=b.dataset.v;
+  else{const l=$("av_cie").value.split(",").map(x=>x.trim()).filter(Boolean),i=l.indexOf(b.dataset.v);if(i>=0)l.splice(i,1);else l.push(b.dataset.v);$("av_cie").value=l.join(", ")}};
+["av_dx","av_des","av_ud"].forEach(k=>$(k).addEventListener("input",coUI));
 
 /* ---------- Accesos rápidos nuevos (incluye llamar al C.O.C. Córdoba) ---------- */
 Object.assign(ACC,{

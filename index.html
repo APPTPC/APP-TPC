@@ -262,7 +262,9 @@ textarea{resize:vertical;min-height:96px;line-height:1.4}
 .iot .iq{display:flex;gap:10px;align-items:center;margin-top:8px}.iot .iq input{max-width:130px;padding:8px 10px}.iot .iq span{font-weight:700}
 a.big-b.nv{display:flex;align-items:center;justify-content:center;min-height:50px;margin-top:8px;background:var(--brand);color:#fff;text-decoration:none;border-radius:12px;font-weight:800}
 .rtl{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}.rtl .chip{margin-bottom:0;min-height:46px}
+.sug{border:1.5px solid var(--line);border-radius:12px;background:var(--card);margin:-4px 0 10px;overflow:hidden}.sug button{display:block;width:100%;text-align:left;padding:10px 12px;border:0;border-bottom:1px solid var(--line);background:none;color:var(--ink);font:inherit;font-size:.92rem;cursor:pointer}.sug button:last-child{border-bottom:0}.sug small{display:block;opacity:.7}
 </style>
+<script src="centros.js"></script>
 </head>
 <body>
 <header class="top">
@@ -1305,14 +1307,22 @@ const navUrl=(app,d)=>{const q=encodeURIComponent(d);
   return app==="waze"?"https://waze.com/ul?q="+q+"&navigate=yes":app==="apple"?"https://maps.apple.com/?daddr="+q+"&dirflg=d":"https://www.google.com/maps/dir/?api=1&destination="+q+"&travelmode=driving&dir_action=navigate"};
 const dt=s=>{const m=Math.max(1,Math.round(s/60));return m>=60?Math.floor(m/60)+" h "+String(m%60).padStart(2,"0")+" min":m+" min"};
 async function rtFetch(u){const c=new AbortController(),t=setTimeout(()=>c.abort(),14000);try{const r=await fetch(u,{signal:c.signal});return await r.json()}finally{clearTimeout(t)}}
-async function rtGeo(q){
-  const j=await rtFetch("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=es&accept-language=es&viewbox="+RT_VB+"&q="+encodeURIComponent(q));
-  return Array.isArray(j)&&j.length?{lat:+j[0].lat,lon:+j[0].lon,n:String(j[0].display_name||"")}:null;
+async function rtGeo(q,hosp){
+  const bs=(lj(KP,{})||{}).base||"",cs=CE.cands(q,bs,hosp);
+  for(let i=0;i<cs.length;i++){
+    if(i)await sleep(1100);
+    let j=await rtFetch("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=es&accept-language=es&viewbox="+RT_VB+"&q="+encodeURIComponent(cs[i]));
+    if(Array.isArray(j)&&j.length)return{lat:+j[0].lat,lon:+j[0].lon,n:String(j[0].display_name||"")};
+    try{j=await rtFetch("https://photon.komoot.io/api/?limit=1&lang=es&lat=37.4&lon=-4.6&bbox=-7.6,35.9,-1.6,38.8&q="+encodeURIComponent(cs[i]));
+      const f=j&&j.features&&j.features[0];
+      if(f)return{lat:f.geometry.coordinates[1],lon:f.geometry.coordinates[0],n:[f.properties.name,f.properties.street,f.properties.city].filter(Boolean).join(", ")}}catch(e){}
+  }
+  return null;
 }
 const rtPos=()=>new Promise((ok,no)=>{if(!navigator.geolocation)return no(new Error("gps"));navigator.geolocation.getCurrentPosition(p=>ok({lat:p.coords.latitude,lon:p.coords.longitude}),no,{enableHighAccuracy:true,timeout:12000,maximumAge:30000})});
 function rtUI(){
   $("rtApp").innerHTML=RT_APPS.map(([k,t])=>`<button class="chip" data-ra="${k}" aria-pressed="${k===rtApp}">${t}</button>`).join("");
-  const ori=$("rtOri").value.trim(),des=$("rtDes").value.trim(),dir=$("rtDir").value.trim();
+  const bs=(lj(KP,{})||{}).base||"",ori=CE.dest($("rtOri").value.trim(),bs,true),des=CE.dest($("rtDes").value.trim(),bs,true),dir=CE.dest($("rtDir").value.trim(),bs,false);
   const a=(t,d)=>d?`<a class="big-b nv" href="${esc(navUrl(rtApp,d))}" target="_blank" rel="noopener">${t}</a>`:"";
   $("rtGo").innerHTML=rtCtx.tr?a("▶ 1 · Ir al origen",ori)+a("▶ 2 · Ir al destino",des):a("▶ Ir a la dirección",dir);
 }
@@ -1346,10 +1356,10 @@ async function rtCalc(){
   try{
     out.innerHTML=`<p class="empty">Localizando…</p>`;
     const pts=[];
-    if(sal){const g=await rtGeo(sal);if(!g)throw new Error("No encuentro el punto de salida «"+sal+"».");pts.push(g);await sleep(1100)}
+    if(sal){const g=await rtGeo(sal,true);if(!g)throw new Error("No encuentro el punto de salida «"+sal+"».");pts.push(g);await sleep(1100)}
     else{try{pts.push(await rtPos())}catch(e){throw new Error("No he podido obtener tu ubicación. Permite el acceso a la ubicación en el navegador o escribe un punto de salida.")}}
     for(let i=0;i<lug.length;i++){
-      const g=await rtGeo(lug[i][1]);if(!g)throw new Error("No encuentro «"+lug[i][1]+"». Prueba con la dirección completa o con el nombre del hospital y la ciudad.");
+      const g=await rtGeo(lug[i][1],tr);if(!g)throw new Error("No encuentro «"+lug[i][1]+"». Prueba con la dirección completa o con el nombre del hospital y la ciudad.");
       pts.push(g);if(i<lug.length-1)await sleep(1100);
     }
     out.innerHTML=`<p class="empty">Calculando ruta…</p>`;
@@ -1369,6 +1379,15 @@ $("ovRuta").addEventListener("click",e=>{
   if(o){$("oH").value=o.dataset.o2;o2();ovOff("ovRuta");irHerr("o2")}
 });
 ["rtOri","rtDes","rtDir"].forEach(id=>$(id).addEventListener("input",rtUI));
+function sugBind(id){const i=$(id);if(!i)return;const b=document.createElement("div");b.className="sug";b.hidden=true;i.after(b);
+  const bs=()=>(lj(KP,{})||{}).base||"";
+  const upd=()=>{const r=CE.parse(i.value,bs());if(i.value.trim().length<2||!r.l.length){b.hidden=true;return}b._r=r;
+    b.innerHTML=r.l.map((h,k)=>`<button type="button" data-k="${k}"><b>${esc(h.c)}</b> · ${esc(h.n)}<small>${esc(h.loc)} (${esc(h.p)})${r.s?" · "+esc(r.s):""}${r.d?" · "+esc(r.d):""}</small></button>`).join("");b.hidden=false};
+  i.addEventListener("input",upd);i.addEventListener("focus",upd);i.addEventListener("blur",()=>setTimeout(()=>{b.hidden=true},200));
+  b.addEventListener("mousedown",e=>e.preventDefault());
+  b.addEventListener("click",e=>{const x=e.target.closest("[data-k]");if(!x)return;i.value=CE.label(b._r,b._r.l[+x.dataset.k]);b.hidden=true;i.dispatchEvent(new Event("input"))});
+}
+["av_ori","av_des","rtOri","rtDes"].forEach(sugBind);
 $("aRuta").onclick=()=>rtAbrir({tipo:aT,ori:$("av_ori").value,des:$("av_des").value,dir:$("av_dir").value});
 
 /* ---------- Soporte (avisos): botones en vez de texto libre ---------- */

@@ -51,3 +51,8 @@ No escribáis **nombres, DNI ni NUHSA de pacientes** en los relevos (la app lo r
 - Es una estimación por carretera con tráfico normal, sin tráfico en tiempo real ni prioridad del vehículo.
 - En los **primarios** ya no hay hospital ni médico de destino.
 - **Soporte** se elige con botones (Monitor, Vía, Oxígeno, Ventilación mecánica, Perfusiones, Marcapasos, Drenajes, Inmovilización) y admite texto libre.
+
+## Centros y ubicaciones (Avisos)
+- `centros.js` contiene el listado de hospitales de Andalucía y entiende siglas, nombres coloquiales y servicios («UCI RDA», «URG HUVN», «HNT», «PTS», «neuro»). Al escribir en *origen/destino* aparecen sugerencias, con prioridad para los centros de tu **Base**. Para añadir o corregir un centro, edita una línea de la lista `D`.
+- Si el texto no es un centro conocido, se trata como dirección: se expanden abreviaturas (C/, Avda., Ctra.…), se quitan piso y puerta, se añade la provincia de tu Base si falta y se prueba en varios pasos (Nominatim y Photon).
+- Hay que subir `centros.js` junto a `index.html` y `sw.js` (ahora `tpc-v11`).

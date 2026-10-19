@@ -56,3 +56,5 @@ No escribáis **nombres, DNI ni NUHSA de pacientes** en los relevos (la app lo r
 - `centros.js` contiene el listado de hospitales de Andalucía y entiende siglas, nombres coloquiales y servicios («UCI RDA», «URG HUVN», «HNT», «PTS», «neuro»). Al escribir en *origen/destino* aparecen sugerencias, con prioridad para los centros de tu **Base**. Para añadir o corregir un centro, edita una línea de la lista `D`.
 - Si el texto no es un centro conocido, se trata como dirección: se expanden abreviaturas (C/, Avda., Ctra.…), se quitan piso y puerta, se añade la provincia de tu Base si falta y se prueba en varios pasos (Nominatim y Photon).
 - Hay que subir `centros.js` junto a `index.html` y `sw.js` (ahora `tpc-v11`).
+
+- En Avisos hay dos campos nuevos, **Ubicación del paciente en origen / destino** (planta, cama, UCI, Urgencias, Cardiología…). Se guardan y se muestran en el aviso, pero **no** se usan para el mapa ni la ruta: solo el hospital. Si eliges un hospital en las sugerencias escribiendo «UCI RDA», el hospital va a su campo y «UCI» pasa a la ubicación. `sw.js` ahora es `tpc-v12`.

@@ -1,6 +1,6 @@
 /* Asistencia TPC · funcionamiento sin conexión.
    Si cambias las guías o los iconos, sube el número de VERSION para que los móviles los vuelvan a descargar. */
-const VERSION = "tpc-v11";
+const VERSION = "tpc-v12";
 const CORE = ["./", "index.html", "centros.js", "manifest.webmanifest", "icon-192.png", "icon-512.png"];
 const PDFS = [
   "guias/ERC2025-05-Soporte-vital-avanzado.pdf",

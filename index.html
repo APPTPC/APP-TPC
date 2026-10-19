@@ -462,8 +462,10 @@ a.big-b.nv{display:flex;align-items:center;justify-content:center;min-height:50p
     <label for="av_nom">Nombre del paciente</label><input type="text" id="av_nom" autocomplete="off" autocapitalize="words">
     <label for="av_doc">NUHSA / DNI (si precisa)</label><input type="text" id="av_doc" autocomplete="off" autocapitalize="characters">
     <label for="av_dx">Diagnóstico</label><input type="text" id="av_dx" autocomplete="off">
+    <datalist id="ubiL"><option value="UCI"><option value="Urgencias"><option value="Reanimación"><option value="Planta"><option value="Cardiología"><option value="Hemodinámica"><option value="Observación"><option value="Quirófano"><option value="Box"></datalist>
     <div id="aTr">
       <label for="av_ori">Hospital de origen</label><input type="text" id="av_ori" autocomplete="off">
+      <label for="av_uo">Ubicación del paciente en origen</label><input type="text" id="av_uo" autocomplete="off" placeholder="Planta, cama, UCI, Urgencias, Cardiología…" list="ubiL">
       <label for="av_mo">Médico de origen</label><input type="text" id="av_mo" autocomplete="off">
     </div>
     <div id="aPr" hidden>
@@ -471,6 +473,7 @@ a.big-b.nv{display:flex;align-items:center;justify-content:center;min-height:50p
     </div>
     <div id="aDes">
       <label for="av_des">Hospital de destino</label><input type="text" id="av_des" autocomplete="off">
+      <label for="av_ud">Ubicación del paciente en destino</label><input type="text" id="av_ud" autocomplete="off" placeholder="Planta, cama, UCI, Urgencias, Cardiología…" list="ubiL">
       <label for="av_md">Médico de destino</label><input type="text" id="av_md" autocomplete="off">
     </div>
     <button class="big-b cn" id="aRuta" type="button">🧭 Ruta y tiempo</button>
@@ -982,7 +985,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(bOpen)bCerrar(fa
 addEventListener("popstate",()=>{cerrar();bCerrar(true)});
 addEventListener("hashchange",()=>{cerrar();bCerrar(true);show(location.hash.slice(1))});
 /* ---------- Avisos (guardados solo en este móvil, localStorage) ---------- */
-const KA="tpc-avisos",AF=["num","nom","doc","dx","ori","mo","dir","des","md","sop"];
+const KA="tpc-avisos",AF=["num","nom","doc","dx","ori","uo","mo","dir","des","ud","md","sop"];
 let aT="Traslado",aEd=null;
 const aLoad=()=>{try{const a=JSON.parse(localStorage.getItem(KA)||"[]");return Array.isArray(a)?a:[]}catch(e){return[]}};
 const aSave=a=>{try{localStorage.setItem(KA,JSON.stringify(a));return true}catch(e){toast("No se pudo guardar en este móvil");return false}};
@@ -999,7 +1002,7 @@ function aGuardar(){
   const v={};AF.forEach(k=>v[k]=$("av_"+k).value.trim());
   if(!v.num&&!v.nom){toast("Indica al menos el nº de aviso o el nombre");return}
   let ts=new Date($("av_fh").value).getTime();if(!ts)ts=Date.now();
-  if(aT==="Primario"){v.ori="";v.mo="";v.des="";v.md=""}else v.dir="";
+  if(aT==="Primario"){v.ori="";v.uo="";v.mo="";v.des="";v.ud="";v.md=""}else v.dir="";
   const r=Object.assign({id:aEd||Date.now().toString(36)+Math.random().toString(36).slice(2,6),ts,tipo:aT},v);
   const l=aLoad(),i=l.findIndex(x=>x.id===r.id);if(i>=0)l[i]=r;else l.push(r);
   if(!aSave(l))return;
@@ -1008,8 +1011,8 @@ function aGuardar(){
 const aLi=(k,v)=>v?`<dt>${k}</dt><dd>${esc(v)}</dd>`:"";
 const aCard=r=>`<div class="av${r.tipo==="Primario"?" pr":""}"><div class="avh"><b>${r.num?"Aviso "+esc(r.num):"Sin nº de aviso"}</b><span class="tag ${r.tipo==="Primario"?"hr":"t"}">${r.tipo}</span><span class="tag">${dm(r.ts)} ${avHora(r.ts)}</span></div><dl>`
   +aLi("Paciente",r.nom)+aLi("NUHSA / DNI",r.doc)+aLi("Diagnóstico",r.dx)
-  +(r.tipo==="Primario"?aLi("Dirección",r.dir):aLi("Hosp. origen",r.ori)+aLi("Médico origen",r.mo))
-  +(r.tipo==="Primario"?"":aLi("Hosp. destino",r.des)+aLi("Médico destino",r.md))+aLi("Soporte",r.sop)
+  +(r.tipo==="Primario"?aLi("Dirección",r.dir):aLi("Hosp. origen",r.ori)+aLi("Ubic. origen",r.uo)+aLi("Médico origen",r.mo))
+  +(r.tipo==="Primario"?"":aLi("Hosp. destino",r.des)+aLi("Ubic. destino",r.ud)+aLi("Médico destino",r.md))+aLi("Soporte",r.sop)
   +`</dl><div class="row"><button class="chip" data-ar="${r.id}">🧭 Ruta</button><button class="chip" data-ae="${r.id}">✏️ Editar</button><button class="chip dng" data-ad="${r.id}">🗑 Eliminar</button></div></div>`;
 function pAv(){
   const all=aLoad().sort((a,b)=>b.ts-a.ts),g0=gIni(Date.now()),gs=new Map();
@@ -1379,15 +1382,15 @@ $("ovRuta").addEventListener("click",e=>{
   if(o){$("oH").value=o.dataset.o2;o2();ovOff("ovRuta");irHerr("o2")}
 });
 ["rtOri","rtDes","rtDir"].forEach(id=>$(id).addEventListener("input",rtUI));
-function sugBind(id){const i=$(id);if(!i)return;const b=document.createElement("div");b.className="sug";b.hidden=true;i.after(b);
+function sugBind(id,lid){const i=$(id);if(!i)return;const b=document.createElement("div");b.className="sug";b.hidden=true;i.after(b);
   const bs=()=>(lj(KP,{})||{}).base||"";
   const upd=()=>{const r=CE.parse(i.value,bs());if(i.value.trim().length<2||!r.l.length){b.hidden=true;return}b._r=r;
     b.innerHTML=r.l.map((h,k)=>`<button type="button" data-k="${k}"><b>${esc(h.c)}</b> · ${esc(h.n)}<small>${esc(h.loc)} (${esc(h.p)})${r.s?" · "+esc(r.s):""}${r.d?" · "+esc(r.d):""}</small></button>`).join("");b.hidden=false};
   i.addEventListener("input",upd);i.addEventListener("focus",upd);i.addEventListener("blur",()=>setTimeout(()=>{b.hidden=true},200));
   b.addEventListener("mousedown",e=>e.preventDefault());
-  b.addEventListener("click",e=>{const x=e.target.closest("[data-k]");if(!x)return;i.value=CE.label(b._r,b._r.l[+x.dataset.k]);b.hidden=true;i.dispatchEvent(new Event("input"))});
+  b.addEventListener("click",e=>{const x=e.target.closest("[data-k]");if(!x)return;const r=b._r,h=r.l[+x.dataset.k],u=[r.s,r.d].filter(Boolean).join(" ");i.value=h.n;if(lid&&u)$(lid).value=u;b.hidden=true;i.dispatchEvent(new Event("input"))});
 }
-["av_ori","av_des","rtOri","rtDes"].forEach(sugBind);
+sugBind("av_ori","av_uo");sugBind("av_des","av_ud");sugBind("rtOri");sugBind("rtDes");
 $("aRuta").onclick=()=>rtAbrir({tipo:aT,ori:$("av_ori").value,des:$("av_des").value,dir:$("av_dir").value});
 
 /* ---------- Soporte (avisos): botones en vez de texto libre ---------- */
